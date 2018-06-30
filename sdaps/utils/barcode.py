@@ -24,8 +24,13 @@ _ = ugettext
 
 import cairo
 import zbar
+from zxinglight import read_codes, BarcodeType
+from PIL import Image
 from sdaps import image
 from sdaps import defs
+
+import logging
+logging.getLogger('zxinglight').setLevel(logging.CRITICAL)
 
 
 def read_barcode(surface, matrix, x, y, width, height, btype="CODE128"):
@@ -88,6 +93,23 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
 
     del cr
     a8_surface.flush()
+
+    # Try zxing
+
+    if btype == "CODE128":
+        barcode_type = BarcodeType.CODE_128
+    elif btype == "QRCODE":
+        barcode_type = BarcodeType.QR_CODE
+    else:
+        barcode_type = None
+    img = Image.frombuffer("L", (width, height), bytes(a8_surface.get_data()), "raw" ,"L", 0, 1)
+    for nw in range(width, 256, -64):
+        codes = read_codes(img.resize((nw, nw*height//width), Image.BICUBIC),
+            barcode_type=barcode_type, try_harder=True, search_multi=False)
+        if len(codes) > 0:
+            return codes[0]
+
+    # Try zbar
 
     # Now we have pixel data that can be passed to zbar
     img = zbar.Image()
