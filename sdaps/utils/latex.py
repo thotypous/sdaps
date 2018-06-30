@@ -163,7 +163,7 @@ def run_engine(texfile, cwd, inputs=None):
         if inputs:
             os.environ['TEXINPUTS'] = ':'.join(['.'] + inputs + [''])
 
-    subprocess.call([defs.latex_engine, '-halt-on-error',
+    subprocess.call([defs.latex_engine, '-shell-escape', '-halt-on-error',
                      '-interaction', 'batchmode', texfile],
                     cwd=cwd,
                     preexec_fn=_preexec_fn)
