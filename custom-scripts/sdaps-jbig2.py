@@ -22,6 +22,7 @@ import os
 import subprocess
 import shutil
 from backports import tempfile
+DEVNULL = open(os.devnull, 'w')
 
 # Use the following and local_run=True below to run without installing SDAPS
 sys.path.append(os.path.join(os.path.dirname(sys.argv[0]), '..'))
@@ -54,6 +55,8 @@ def generate_pdf():
         counter += 1
 
     with tempfile.TemporaryDirectory() as tmp_dir:
+        page_files = []
+
         for p in xrange(questionnaire.page_count):
             # 1 based page numbers
             p += 1
@@ -64,20 +67,22 @@ def generate_pdf():
                 continue
 
             page_file = os.path.join(tmp_dir, 'page-%04i.tiff' % p)
+            page_files.append(page_file)
             surface = img.surface.load_uncached()
             image.write_a1_to_tiff(page_file, surface)
 
-        p = subprocess.Popen('jbig2 -s -p *.tiff 2>/dev/null',
-                             cwd=tmp_dir,
-                             shell=True)
-        assert p.wait() == 0
+        if page_files != []:
+            p = subprocess.Popen(['jbig2', '-s', '-p'] + page_files,
+                                 cwd=tmp_dir,
+                                 stderr=DEVNULL)
+            assert p.wait() == 0
 
-        p = subprocess.Popen(['pdf.py', 'output'],
-                             cwd=tmp_dir,
-                             stdout=subprocess.PIPE)
-        with open(pdf_name, 'wb') as f:
-            shutil.copyfileobj(p.stdout, f)
-        assert p.wait() == 0
+            p = subprocess.Popen(['pdf.py', 'output'],
+                                 cwd=tmp_dir,
+                                 stdout=subprocess.PIPE)
+            with open(pdf_name, 'wb') as f:
+                shutil.copyfileobj(p.stdout, f)
+            assert p.wait() == 0
 
 
 survey.iterate_progressbar(generate_pdf)
