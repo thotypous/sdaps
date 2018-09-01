@@ -41,6 +41,8 @@ dirty_qids = set()
 
 for i in xrange(2, len(sys.argv), 3):
     tiff_page, qid, page_number = sys.argv[i:i+3]
+    #tiff_page starts counting at 1
+    #page_number starts counting at 1
 
     tiff_page = int(tiff_page)
     page_number = int(page_number)
@@ -57,6 +59,7 @@ images = defaultdict(lambda : [])
 
 for sheet in survey.sheets[:]:
     for image in sheet.images[:]:
+        #print(image.questionnaire_id, image.page_number)
         if image.questionnaire_id is None and image.tiff_page != -1:
             print("unrecog page => %d" % (image.tiff_page + 1))
 
@@ -85,5 +88,5 @@ for qid, img_list in images.iteritems():
             sheet.add_image(img_list.pop(0))
             assert len(sheet.images) < image_count
 
-
-survey.save()
+if len(page_data) != 0:
+    survey.save()
