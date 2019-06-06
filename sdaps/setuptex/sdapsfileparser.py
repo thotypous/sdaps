@@ -27,6 +27,7 @@ from sdaps.utils.latex import latex_to_unicode
 QOBJECT_PREFIX = 'QObject'
 ANSWER_PREFIX = 'Answer'
 BOX = 'Box'
+VARIABLE = 'Variable'
 TEXTBOX = 'Textbox'
 RANGE_PREFIX = 'Range'
 
@@ -56,7 +57,23 @@ def parse(survey):
     qobject = None
     auto_numbering_id = (0,)
 
-    for line in sdaps_data.split('\n'):
+    sdaps_data = sdaps_data.split('\n')
+
+    if sdaps_data[0].startswith('['):
+        lines = []
+        for line in sdaps_data:
+            # Ignore empty lines
+            if not line:
+                continue
+            num, line = line.split(']', 1)
+            num = int(num[1:])
+            lines.append((num, line))
+
+        lines.sort(key=lambda x: x[0])
+
+        sdaps_data = [l[1] for l in lines]
+
+    for line in sdaps_data:
         line = line.strip()
         if line == "":
             continue
@@ -128,6 +145,11 @@ def parse(survey):
             qobject.setup.init()
 
             qobject.setup.question(string)
+        elif arg == VARIABLE:
+            assert qobject is not None
+
+            qobject.setup.variable_name(value)
+
         elif arg.startswith(ANSWER_PREFIX):
             assert qobject is not None
 
@@ -164,6 +186,14 @@ def parse(survey):
 
             if boxtype == 'Textbox':
                 box = model.questionnaire.Textbox()
+                if len(args) == 9:
+                    lw = args[6] if args[6] else None
+                    box.var = args[7] if args[7] else None
+                    box.value = int(args[8]) if args[8] else None
+                else:
+                    assert(len(args) == 6)
+            elif boxtype == 'Codebox':
+                box = model.questionnaire.Codebox()
                 if len(args) == 9:
                     lw = args[6] if args[6] else None
                     box.var = args[7] if args[7] else None

@@ -1,11 +1,10 @@
 [sdaps]
-title = The Title
+title = asdf
 global_id = 
 
 [info]
 Author = The Author
 Date = 10.03.2013
-asdf = title
 
 [defs]
 # These values are not read back, they exist for information only!
@@ -16,9 +15,10 @@ print_survey_id = True
 style = code128
 duplex = True
 checkmode = checkcorrect
+engine = pdflatex
 
 [questionnaire]
 # These values are not read back, they exist for information only!
 page_count = 2
-survey_id = 1655828509
+survey_id = 3297744764
 

@@ -6,28 +6,27 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: SDAPS 0.1\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-26 19:09+0100\n"
-"PO-Revision-Date: 2018-04-10 15:00+0200\n"
-"Last-Translator: Damian Kulig <dp.kulig@student.uj.edu.pl>\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: pl\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #. The language name of the LaTeX dictionary file for translator
 #: ../tex_translations.in.h:2
 msgid "English"
-msgstr "Polish"
+msgstr ""
 
 #. Used as an overlay for questionnaires that are not yet done
 #: ../tex_translations.in.h:4
 msgid "draft"
-msgstr "szkic"
+msgstr ""
 
 #. Label for the survey-id on the questionnaire (in "classic" mode)
 #: ../tex_translations.in.h:6
@@ -41,13 +40,10 @@ msgstr ""
 
 #. Default instructions on the questionnaire
 #: ../tex_translations.in.h:10
-#, fuzzy
 msgid ""
 "This questionnaire is evaluated automatically. Please use a pen to fill in "
 "your answers as follows:"
 msgstr ""
-"Ten kwestianariusz jest sprawdzany automatycznie. Użyj długopisu wpisując "
-"odpowiedzi."
 
 #. Instruction on the questionnaire: Next to checked textbox
 #: ../tex_translations.in.h:12
@@ -77,31 +73,14 @@ msgstr ""
 #. LaTeX based report: Label for the number of people that answered
 #: ../tex_translations.in.h:22
 msgid "Answers"
-msgstr "Odpowiedzi"
+msgstr ""
 
 #. LaTeX based report: The calculated mean value
 #: ../tex_translations.in.h:24
 msgid "Mean"
-msgstr "Znaczenie"
+msgstr ""
 
 #. LaTeX based report: The standard deviation
 #: ../tex_translations.in.h:26
 msgid "Standard-Deviation"
 msgstr ""
-
-#~ msgid "Check"
-#~ msgstr "Zaznaczenie"
-
-#~ msgid "Uncheck to correct"
-#~ msgstr "Odznaczenie do poprawy"
-
-#~ msgid "You can check any number of boxes in selection questions."
-#~ msgstr ""
-#~ "Możesz wybrać dowolną ilość odpowiedzi w zaznaczając odpowiednie kwadraty."
-
-#~ msgid ""
-#~ "For questions with a range (1--\\arabic{markcheckboxcount}) mark the "
-#~ "answer that fits best."
-#~ msgstr ""
-#~ "Dla pytań (1--\arabic{markcheckboxcount}) wybierz odpowiedź, która "
-#~ "najlepiej pasuje."

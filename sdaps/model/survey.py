@@ -70,7 +70,8 @@ class Defs(object):
 
     # Force a certain set of options using slots
     __slots__ = ['paper_width', 'paper_height', 'print_questionnaire_id',
-                 'print_survey_id', 'style', 'duplex', 'checkmode']
+                 'print_survey_id', 'style', 'duplex', 'checkmode',
+                 'engine']
 
     def get_survey_id_pos(self):
         assert(self.style == 'classic')
@@ -154,6 +155,17 @@ class Survey(object):
 
         self.goto_sheet(sheet)
 
+    def delete_sheet(self, sheet):
+        """"
+        WARNING: The sheet will remain iteratable until the survey has been
+        saved!
+        """
+        # This is a bit of a hack, but it will work great
+        sheet._delete = True
+        sheet._dirty = True
+
+        self.goto_sheet(None)
+
     def calculate_survey_id(self):
         """Calculate the unique survey ID from the surveys settings and boxes.
 
@@ -168,6 +180,9 @@ class Survey(object):
         for defs_slot in self.defs.__slots__:
             # Backward compatibility
             if defs_slot == 'checkmode' and self.defs.checkmode == "checkcorrect":
+                continue
+
+            if defs_slot == 'engine':
                 continue
 
             if isinstance(self.defs.__getattribute__(defs_slot), float):
@@ -239,6 +254,10 @@ class Survey(object):
         if not sheet.dirty and sheet._rowid != -1:
             return
 
+        if hasattr(sheet, '_delete') and sheet._delete:
+            cursor.execute('DELETE FROM sheets WHERE survey_rowid=? and rowid=?', (self._survey_rowid, sheet._rowid))
+            return
+
         tmp = json.dumps(sheet, default=db.toJson)
         if sheet._rowid == -1:
             cursor.execute('INSERT INTO sheets (survey_rowid, json) VALUES (?, ?)', (self._survey_rowid, tmp))
@@ -250,11 +269,15 @@ class Survey(object):
         sheet._clear_dirty()
 
     def __setstate__(self, state):
-        self.__dict__ = state
         self._internal_init()
+        self.__dict__.update(state)
         self.questionnaire = db.fromJson(self.questionnaire, questionnaire.Questionnaire)
         self.questionnaire.survey = self
         self.defs = db.fromJson(self.defs, Defs)
+
+        # Migrate old Defs object (from 1.9.5 or newer)
+        if not hasattr(self.defs, 'engine'):
+            self.defs.engine = defs.latex_engine
 
     @staticmethod
     def new(survey_dir):

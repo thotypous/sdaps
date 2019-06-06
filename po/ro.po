@@ -5,31 +5,32 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: SDAPS 0.1\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-26 19:10+0100\n"
-"PO-Revision-Date: 2019-04-30 00:48+0000\n"
-"Last-Translator: Rui Mendes <xz9@protonmail.com>\n"
-"Language-Team: Portuguese <https://hosted.weblate.org/projects/sdaps/master/"
-"pt/>\n"
-"Language: pt\n"
+"PO-Revision-Date: 2018-10-04 13:52+0000\n"
+"Last-Translator: vgheo <vlad.gheorghe@gmail.com>\n"
+"Language-Team: Romanian <https://hosted.weblate.org/projects/sdaps/master/ro/"
+">\n"
+"Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.6.1\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 3.2-dev\n"
 
 #: ../sdaps/script.py:41
 msgid "SDAPS -- Paper based survey tool."
-msgstr "SDAPS -- Ferramenta para reconhecimento de questionários em papel."
+msgstr "SDAPS - Utilitar pentru sondaje suport fizic"
 
 #: ../sdaps/script.py:45
 msgid "command list|Commands:"
-msgstr "lista de comandos|Comandos:"
+msgstr "listă comenzi|Comenzi:"
 
 #: ../sdaps/script.py:50
 msgid "project directory|The SDAPS project."
-msgstr "pasta do projeto|Projeto SDAPS."
+msgstr "director proiect|Proiectul SDAPS."
 
 #: ../sdaps/add/__init__.py:55
 #, python-format
@@ -37,8 +38,8 @@ msgid ""
 "Invalid input file %s. You need to specify a (multipage) monochrome TIFF as "
 "input."
 msgstr ""
-"Ficheiro de entrada inválido %s. Tem de especificar uma imagem TIFF (multi-"
-"páginas) monocromática como entrada."
+"Fișier de intrare invalid : \"%s\". Trebuie să specificați ca intrare un "
+"fișier TIFF (multi-pagină) monocrom."
 
 #: ../sdaps/add/__init__.py:67
 #, python-format
@@ -46,25 +47,25 @@ msgid ""
 "Not adding %s because it has a wrong page count (needs to be a mulitple of "
 "%i)."
 msgstr ""
-"%s não foi adicionado porque tem um número de páginas errado (tem de ser um "
-"múltiplo de %i)."
+"\"%s\" nu a fost adăugat deoarece are un număr incorect de pagini (trebuie "
+"să fie multiplu de %i)."
 
 #: ../sdaps/boxgallery/__init__.py:108
 #, python-format
 msgid "Rendering boxgallery for metric \"%s\"."
-msgstr "A renderizar caixas pela métrica \"%s\"."
+msgstr "Randăm boxgallery pentru metrica \"%s\"."
 
 #: ../sdaps/log.py:37
 msgid "Warning: "
-msgstr "Atenção: "
+msgstr "Avertizare: "
 
 #: ../sdaps/log.py:41
 msgid "Error: "
-msgstr "Erro: "
+msgstr "Eroare: "
 
 #: ../sdaps/cmdline/add.py:31
 msgid "Add scanned questionnaires to the survey."
-msgstr "Adicionar questionários digitalizados na pesquisa."
+msgstr "Adaugă chestionarul scanat la sondaj"
 
 #: ../sdaps/cmdline/add.py:32
 msgid ""
@@ -75,84 +76,84 @@ msgid ""
 "case\n"
 "    the data will be referenced using a relative path."
 msgstr ""
-"Este comando é usado para adicionar imagens digitalizadas no questionário.\n"
-"     A imagem tem de ser no formato TIFF (multi-páginas) monocromático a "
-"300dpi.\n"
-"     Pode optar por não copiar os dados para a pasta do projeto. Nesse\n"
-"     caso os dados serão referenciados usando um caminho relativo."
+"Această comandă este folosită pentru a adăuga imagini scanate la sondaj.\n"
+"    Imaginile trebuie să fie fișiere TIFF monocrom (multi-pagină) 300dpi.\n"
+"    Puteți alege să nu copiați imaginile în directorul proiectului. In acest "
+"caz\n"
+"    fișierele cu imagini vor fi referențiate folosind o cale relativă."
 
 #: ../sdaps/cmdline/add.py:38
 msgid "Convert given files and add the result."
-msgstr "Converter os ficheiros especificados e adicionar o resultado."
+msgstr "Convertește fișierele date și adaugă rezultatul."
 
 #: ../sdaps/cmdline/add.py:43
 msgid ""
 "Do a 3D-transformation after finding the corner marks. If the\n"
 "        corner marks are not found then the image will be added as-is."
 msgstr ""
-"Faz uma transformação 3D depois de encontrar as marcas de canto.\n"
-"        Se as marcas não forem encontradas, a imagem é adicionada tal como "
-"está."
+"Aplică o transformare 3D după localizarea marcajelor de colț. Dacă\n"
+"     marcajele de colț nu sunt localizate, imaginea va fi adăugată fără \n"
+"     modificări."
 
 #: ../sdaps/cmdline/add.py:49
 msgid ""
 "Force adding the images even if the page count is wrong (only use if you "
 "know what you are doing)."
 msgstr ""
-"Força a adição das imagens, mesmo que a contagem de páginas esteja errada ("
-"use apenas se souber o que está a fazer)."
+"Forțează adăugarea imaginilor chiar dacă numărul de pagini este greșit (de "
+"folosit numai dacă știți ce faceți)."
 
 #: ../sdaps/cmdline/add.py:53
 msgid "Copy the files into the directory (default)."
-msgstr "Copiar os ficheiros para a pasta (padrão)."
+msgstr "Copiază fișierele în director (implicit)."
 
 #: ../sdaps/cmdline/add.py:58
 msgid "Do not copy the files into the directory."
-msgstr "Não copiar os ficheiros para a pasta."
+msgstr "Nu copia fișierele în director."
 
 #: ../sdaps/cmdline/add.py:62
 msgid ""
 "Images contain a duplex scan of a simplex questionnaire (default: simplex "
 "scan)."
 msgstr ""
-"As imagens contêm uma digitalização das 2 faces de cada página (duplex) de "
-"um questionário só com 1 face de cada página (padrão: digitalização simplex)."
+"Imaginile conțin a scanare duplex a unui chestionar simplex (implicit : "
+"scanare simplex)."
 
 #: ../sdaps/cmdline/add.py:68 ../sdaps/cmdline/convert.py:48
 msgid "A number of TIFF image files."
-msgstr "Um número de ficheiros de imagens TIFF."
+msgstr "Un număr de fișiere cu imagini TIFF."
 
 #: ../sdaps/cmdline/add.py:94
 msgid "The --no-copy option is not compatible with --convert!"
-msgstr "A opção --no-copy não é compatível com --convert!"
+msgstr "Opțiunea --no-copy nu este compatibilă cu --convert !"
 
 #: ../sdaps/cmdline/add.py:103
 msgid "Converting input files into a single temporary file."
-msgstr "Converter ficheiros de entrada numa pasta temporária."
+msgstr "Se convertesc fișierele de intrare într-un singur fișier temporar."
 
 #: ../sdaps/cmdline/add.py:115
 msgid ""
 "The page count of the created temporary file does not work with this survey."
 msgstr ""
-"O número de páginas do ficheiro criado temporariamente não funciona com este "
-"questionário."
+"Numărul de pagini al fișierului creat temporar nu este potrivit pentru acest "
+"sondaj."
 
 #: ../sdaps/cmdline/add.py:120
 msgid "Running the conversion failed."
-msgstr "A conversão falhou."
+msgstr "Conversia a eșuat."
 
 #: ../sdaps/cmdline/add.py:126
 #, python-format
 msgid "Processing %s"
-msgstr "A processar %s"
+msgstr "Se procesează %s"
 
 #: ../sdaps/cmdline/add.py:130 ../sdaps/reset/__init__.py:33
 msgid "Done"
-msgstr "Concluído"
+msgstr "Gata"
 
 #: ../sdaps/cmdline/annotate.py:28
 msgid "Annotate the questionnaire and show the recognized positions."
-msgstr "Anotar o questionário e mostrar as posições reconhecidas."
+msgstr "Adnotați chestionarul și arătați pozițiile recunoscute."
 
 #: ../sdaps/cmdline/annotate.py:29
 msgid ""
@@ -160,13 +161,10 @@ msgid ""
 "    annotated version of the questionnaire, with the information that SDAPS\n"
 "    knows about it overlayed on top."
 msgstr ""
-"Este comando é principalmente um utilitário de depuração. Ele cria uma\n"
-"    versão anotada do questionário, com as informações que o SDAPS\n"
-"    sabe sobre ele, sobrepostas na parte superior."
 
 #: ../sdaps/cmdline/boxgallery.py:31
 msgid "Create PDFs with boxes sorted by the detection heuristics."
-msgstr "Cria PDFs com caixas ordenadas por heurísticas de deteção."
+msgstr ""
 
 #: ../sdaps/cmdline/boxgallery.py:32
 msgid ""
@@ -178,23 +176,16 @@ msgid ""
 "    will be created for each of the heuristics so that one can adjust the\n"
 "    values."
 msgstr ""
-"O SDAPS usa várias heurísticas para determinar o estado das caixas.\n"
-"    Há uma lista para cada heurística dando o estado esperado e a qualidade\n"
-"    do valor (ver defs.py). Usando este comando, será criado um PDF para "
-"cada\n"
-"    uma das heurísticas, para que se possa ajustar os valores."
 
 #: ../sdaps/cmdline/boxgallery.py:40
 msgid ""
 "Reruns part of the recognition process and retrieves debug images from this "
 "step."
 msgstr ""
-"Executa o reconhecimento novamente e armazena imagens adicionais para "
-"depuração a partir deste passo."
 
 #: ../sdaps/cmdline/convert.py:30
 msgid "Convert a set of images to the correct image format."
-msgstr "Converte um conjunto de imagens para o formato de imagem correto."
+msgstr ""
 
 #: ../sdaps/cmdline/convert.py:31
 msgid ""
@@ -205,52 +196,39 @@ msgid ""
 "may facilitate\n"
 "        working with photos of questionnaires instead of scans."
 msgstr ""
-"Esse comando pode ser usado se tiver ficheiros digitalizados num formato "
-"diferente\n"
-"\tdo TIFF monocromático esperado. Todos os ficheiros serão carregados,\n"
-"\tconvertidos em monocromático e armazenados num ficheiro TIFF multi-página "
-"de 1bpp.\n"
-"\tOpcionalmente, pode selecionar Transformação 3D, o que pode facilitar\n"
-"\to trabalho com fotos dos questionários em vez da digitalização "
-"convencional."
 
 #: ../sdaps/cmdline/convert.py:38
 msgid ""
 "Do a 3D-transformation after finding the corner marks.\n"
 "    If they are not found, the image will be processed as-is."
 msgstr ""
-"Faz uma transformação 3D depois de encontrar as marcas de canto.\n"
-"        Se as marcas não forem encontradas, a imagem é adicionada tal como "
-"está."
 
 #: ../sdaps/cmdline/convert.py:44
 msgid "The location of the output file."
-msgstr "A localização do ficheiro de saída."
+msgstr ""
 
 #: ../sdaps/cmdline/convert.py:57
 msgid "No output filename specified!"
-msgstr "Não foi especificado o nome do ficheiro de saída!"
+msgstr ""
 
 #: ../sdaps/cmdline/cover.py:27
 msgid "Create a cover for the questionnaires."
-msgstr "Criar uma página de rosto para os questionários."
+msgstr ""
 
 #: ../sdaps/cmdline/cover.py:28
 msgid ""
 "This command creates a cover page for questionnaires. All\n"
 "    the metadata of the survey will be printed on the page."
 msgstr ""
-"Este comando cria uma página de rosto para os questionários.\n"
-"    Todos os metadados do questionário serão impressos nela."
 
 #: ../sdaps/cmdline/cover.py:31
 #, python-format
 msgid "Filename to store the data to (default: cover_%%i.pdf)"
-msgstr "Nome do ficheiro para armazenar os dados (padrão: cover_%%i.pdf)"
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:34
 msgid "Import or export data to/from CSV files."
-msgstr "Importar ou exportar dados de/para ficheiros CSV."
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:35
 msgid ""
@@ -261,56 +239,48 @@ msgid ""
 "sheet\n"
 "    which should be updated."
 msgstr ""
-"Importar ou exportar dados de/para um ficheiro CSV. A primeira linha\n"
-"     é um cabeçalho, que define questionnaire_id, global_id e uma coluna\n"
-"     para cada caixa de verificação e campo de texto. Note que a importação "
-"é\n"
-"     atualmente muito limitada, já que tem de especificar o identificador\n"
-"     do questionário para selecionar a folha que deve ser atualizada."
 
 #: ../sdaps/cmdline/csvdata.py:44
 msgid "Export data to CSV file."
-msgstr "Exportar dados para um ficheiro CSV."
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:46
 #, python-format
 msgid "Filename to store the data to (default: data_%%i.csv)"
-msgstr "Nome do ficheiro para armazenar os dados (padrão: data_%%i.csv)"
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:48
 msgid "The delimiter used in the CSV file (default ',')"
-msgstr "O delimitador usado no ficheiro CSV (padrão ',')"
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:52 ../sdaps/cmdline/report.py:31
 #: ../sdaps/cmdline/reporttex.py:52
 msgid "Filter to only export a partial dataset."
-msgstr "Filtro para exportar apenas um conjunto parcial de dados."
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:54
 msgid "Export images of freeform fields."
-msgstr "Exportar imagens dos campos de forma livre."
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:60
 msgid "Export an image for each question that includes all boxes."
-msgstr "Exportar uma imagem para cada pergunta que inclui todas as caixas."
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:66
 msgid "Export the recognition quality for each checkbox."
-msgstr "Exportar a qualidade do reconhecimento para cada caixa de verificação."
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:74
 msgid "Import data to from a CSV file."
-msgstr "Importar dados de um ficheiro CSV."
+msgstr ""
 
 #: ../sdaps/cmdline/csvdata.py:76
 msgid "The file to import."
-msgstr "O ficheiro a ser importado."
+msgstr ""
 
 #: ../sdaps/cmdline/gui.py:28
 msgid "Launch a GUI. You can view and alter the (recognized) answers with it."
 msgstr ""
-"Abrir uma interface gráfica (GUI). Pode visualizar e alterar as respostas "
-"(reconhecidas) nela."
 
 #: ../sdaps/cmdline/gui.py:29
 msgid ""
@@ -319,17 +289,14 @@ msgid ""
 "it.\n"
 "    "
 msgstr ""
-"Este comando lança uma interface gráfica (GUI) que pode ser utilizada para\n"
-"     corrigir respostas. Tem de executar \"recognize\" antes de usá-lo.\n"
-"    "
 
 #: ../sdaps/cmdline/gui.py:34
 msgid "Filter to only show a partial dataset."
-msgstr "Filtro para mostrar apenas um conjunto de dados parcial."
+msgstr ""
 
 #: ../sdaps/cmdline/ids.py:29
 msgid "Export and import questionnaire IDs."
-msgstr "Exportação e importação de identificadores (IDs) de questionários."
+msgstr ""
 
 #: ../sdaps/cmdline/ids.py:30
 msgid ""
@@ -339,23 +306,19 @@ msgid ""
 "command,\n"
 "    which will give you the PDF at the same time."
 msgstr ""
-"Esse comando pode ser usado para importar e exportar IDs de questionários.\n"
-"     Só faz sentido em projetos onde tal identificação é impressa no\n"
-"     questionário. Note que também pode adicionar IDs usando o comando\n"
-"     \"stamp\", que também lhe dará o ficheiro PDF."
 
 #: ../sdaps/cmdline/ids.py:35
 #, python-format
 msgid "Filename to store the data to (default: ids_%%i)"
-msgstr "Nome do ficheiro para armazenar os dados (padrão: ids_%%i)"
+msgstr ""
 
 #: ../sdaps/cmdline/ids.py:38
 msgid "Add IDs to the internal list from the specified file."
-msgstr "Adicionar IDs à lista interna do ficheiro especificado."
+msgstr ""
 
 #: ../sdaps/cmdline/info.py:28
 msgid "Display and modify metadata of project."
-msgstr "Mostrar e alterar os metadados do projeto."
+msgstr ""
 
 #: ../sdaps/cmdline/info.py:29
 msgid ""
@@ -365,31 +328,26 @@ msgid ""
 "    on the report. The only key that always exist is \"title\".\n"
 "    If no key is given then a list of defined keys is printed."
 msgstr ""
-"Este comando permite que altere os metadados do projeto SDAPS.\n"
-"     Pode alterar, adicionar e remover chaves arbitrárias que serão "
-"impressas\n"
-"     no relatório. A única chave que existe sempre é \"title\".\n"
-"     Se não for fornecida nenhuma chave, é impressa uma lista de chaves."
 
 #: ../sdaps/cmdline/info.py:36
 msgid "Delete the key and value pair."
-msgstr "Eliminar o par de chave e valor."
+msgstr ""
 
 #: ../sdaps/cmdline/info.py:40
 msgid "The key to display or modify."
-msgstr "A chave a mostrar ou alterar."
+msgstr ""
 
 #: ../sdaps/cmdline/info.py:44
 msgid "Set the given key to this value."
-msgstr "Defina o chave fornecida para este valor."
+msgstr ""
 
 #: ../sdaps/cmdline/info.py:69
 msgid "Existing fields:\n"
-msgstr "Campos existentes:\n"
+msgstr ""
 
 #: ../sdaps/cmdline/recognize.py:28
 msgid "Run the optical mark recognition."
-msgstr "Executar o reconhecimento ótico de marcas."
+msgstr ""
 
 #: ../sdaps/cmdline/recognize.py:29
 msgid ""
@@ -398,29 +356,21 @@ msgid ""
 "already\n"
 "    run or manual changes were made."
 msgstr ""
-"Itera sobre todas as imagens e executa o reconhecimento ótico de marcas.\n"
-"     Ele irá reavaliar as folhas mesmo que o comando \"recognize\" tenha "
-"sido\n"
-"     executado previamente ou tenham sido feitas alterações manuais."
 
 #: ../sdaps/cmdline/recognize.py:34
 msgid ""
 "Only identify the page properties, but don't recognize the checkbox states."
 msgstr ""
-"Identifica apenas as propriedades da página, mas não reconhece os estados "
-"das caixas de verificação (respostas)."
 
 #: ../sdaps/cmdline/recognize.py:39
 msgid ""
 "Rerun the recognition for all pages. The default is to skip all pages that "
 "were recognized or verified already."
 msgstr ""
-"Executar novamente o reconhecimento para todas as páginas. O padrão é "
-"ignorar todas as páginas que já foram reconhecidas ou verificadas."
 
 #: ../sdaps/cmdline/reorder.py:26
 msgid "Reorder pages according to questionnaire ID."
-msgstr "Reordenar páginas de acordo com o identificador (ID) do questionário."
+msgstr ""
 
 #: ../sdaps/cmdline/reorder.py:27
 msgid ""
@@ -433,78 +383,65 @@ msgid ""
 "recognition.\n"
 "    "
 msgstr ""
-"Este comando reordena as páginas pelo ID do questionário já reconhecido\n"
-"     Para usá-lo, adicione todos os ficheiros ao projeto, depois\n"
-"     execute o reconhecimento parcial com \"recognize --identify\".\n"
-"     Após isto, tem de executar este comando para reordenar\n"
-"     os dados para o real reconhecimento.\n"
-"    "
 
 #: ../sdaps/cmdline/report.py:26
 msgid "Create a PDF report."
-msgstr "Criar um relatório PDF."
+msgstr ""
 
 #: ../sdaps/cmdline/report.py:27
 msgid ""
 "This command creates a PDF report using reportlab that\n"
 "    contains statistics and if selected the freeform fields."
 msgstr ""
-"Este comando cria um relatório em PDF usando o reportlab que\n"
-"     contém estatísticas e os campos de forma livre, se selecionados."
 
 #: ../sdaps/cmdline/report.py:33
 msgid "Create a filtered report for every checkbox."
-msgstr "Criar um relatório filtrado para cada caixa."
+msgstr ""
 
 #: ../sdaps/cmdline/report.py:36
 msgid "Short format (without freeform text fields)."
-msgstr "Formato curto (sem campos de texto de forma livre)."
+msgstr ""
 
 #: ../sdaps/cmdline/report.py:41
 msgid "Detailed output. (default)"
-msgstr "Saída detalhada. (padrão)"
+msgstr ""
 
 #: ../sdaps/cmdline/report.py:47 ../sdaps/cmdline/reporttex.py:30
 msgid ""
 "Do not include original images in the report. This is useful if there are "
 "privacy concerns."
 msgstr ""
-"Não incluir imagens originais no relatório. Isto é útil se houver "
-"preocupação com a privacidade."
 
 #: ../sdaps/cmdline/report.py:52 ../sdaps/cmdline/reporttex.py:35
 msgid "Do not use substitutions instead of images."
-msgstr "Não usar substituições em vez de imagens."
+msgstr ""
 
 #: ../sdaps/cmdline/report.py:58 ../sdaps/cmdline/reporttex.py:46
 msgid "The paper size used for the output (default: locale dependent)"
 msgstr ""
-"O tamanho do papel usado para a saída (padrão: dependente do idioma e país)"
 
 #: ../sdaps/cmdline/report.py:61 ../sdaps/cmdline/reporttex.py:49
 #, python-format
 msgid "Filename to store the data to (default: report_%%i.pdf)"
-msgstr "Nome do ficheiro para armazenar os dados (padrão: report_%%i.pdf)"
+msgstr ""
 
 #: ../sdaps/cmdline/reporttex.py:26
 msgid "Create a PDF report using LaTeX."
-msgstr "Criar um relatório em PDF usando LaTeX."
+msgstr ""
 
 #: ../sdaps/cmdline/reporttex.py:27
 msgid ""
 "This command creates a PDF report using LaTeX that\n"
 "    contains statistics and freeform fields."
 msgstr ""
-"Este comando cria um relatório em PDF usando LaTeX que\n"
-"     contém estatísticas e campos de forma livre."
 
 #: ../sdaps/cmdline/reporttex.py:41
 msgid "Save the generated TeX files instead of the final PDF."
-msgstr "Guardar os ficheiros TeX gerados em vez do PDF final."
+msgstr ""
 
 #: ../sdaps/cmdline/reset.py:26
 msgid "Reset project into original state"
-msgstr "Repor o projeto no seu estado original"
+msgstr ""
 
 #: ../sdaps/cmdline/reset.py:27
 msgid ""
@@ -512,13 +449,10 @@ msgid ""
 "    will be discarded and only the empty project is left.\n"
 "    "
 msgstr ""
-"Este comando limpa todo o projeto. Todos os dados são\n"
-"    descartados e é deixado apenas o projeto em branco.\n"
-"    "
 
 #: ../sdaps/cmdline/setup.py:27
 msgid "Create a new survey using a LaTeX document."
-msgstr "Criar um novo questionário através de um documento LaTeX."
+msgstr ""
 
 #: ../sdaps/cmdline/setup.py:28
 msgid ""
@@ -526,29 +460,24 @@ msgid ""
 "    be using the SDAPS class. All the metadata and options for the project\n"
 "    can be set inside the LaTeX document."
 msgstr ""
-"Criar um novo questionário a partir de um documento LaTeX.\n"
-"     Tem de estar a usar a classe SDAPS. Todos os metadados e opções\n"
-"     para o projeto podem ser definidos no documento LaTeX."
 
 #: ../sdaps/cmdline/setup.py:33
 msgid "The LaTeX Document"
-msgstr "O documento LaTeX"
+msgstr ""
 
 #: ../sdaps/cmdline/setup.py:35
 msgid ""
 "Additional files that are required by the LaTeX document and need to be "
 "copied into the project directory."
 msgstr ""
-"São necessários ficheiros adicionais para o documento LaTeX e têm de ser "
-"copiados para o diretório do projeto."
 
 #: ../sdaps/cmdline/setup.py:39
 msgid "Additional questions that are not part of the questionnaire."
-msgstr "Perguntas adicionais que não fazem parte do questionário."
+msgstr ""
 
 #: ../sdaps/cmdline/stamp.py:26
 msgid "Add marks for automatic processing."
-msgstr "Adicionar marcas para processamento automático."
+msgstr ""
 
 #: ../sdaps/cmdline/stamp.py:27
 msgid ""
@@ -557,121 +486,107 @@ msgid ""
 "questionnaire\n"
 "    IDs."
 msgstr ""
-"Este comando cria o documento para impressão. Dependendo das configurações\n"
-"      do projeto, tem de especificar uma fonte para os IDs do questionário."
 
 #: ../sdaps/cmdline/stamp.py:33
 msgid ""
 "If using questionnaire IDs, create N questionnaires with randomized IDs."
 msgstr ""
-"Se estiver a usar IDs de questionário, cria N questionários com IDs "
-"aleatórios."
 
 #: ../sdaps/cmdline/stamp.py:36
 msgid ""
 "If using questionnaire IDs, create questionnaires from the IDs read from the "
 "specified file."
 msgstr ""
-"Se estiver a usar IDs de questionário, cria questionários com os IDs lidos "
-"do ficheiro especificado."
 
 #: ../sdaps/cmdline/stamp.py:39
 msgid "If using questionnaire IDs, create questionnaires for all stored IDs."
 msgstr ""
-"Se estiver a usar IDs de questionário, cria questionários para todos os IDs "
-"armazenados."
 
 #: ../sdaps/cmdline/stamp.py:42
 #, python-format
 msgid "Filename to store the data to (default: stamp_%%i.pdf)"
-msgstr "Nome do ficheiro para armazenar os dados (padrão: stamp_%%i.pdf)"
+msgstr ""
 
 #: ../sdaps/convert/__init__.py:37
 #, python-format
 msgid "Could not apply 3D-transformation to image '%s', page %i!"
-msgstr "Não foi possível aplicar a transformação 3D na imagem '%s', página %i!"
+msgstr ""
 
 #: ../sdaps/cover/__init__.py:40
 msgid "SDAPS questionnaire"
-msgstr "Questionário SDAPS"
+msgstr ""
 
 #: ../sdaps/csvdata/buddies.py:77
 #, python-format
 msgid "Not importing unknown questionnaire ID \"%s\""
 msgstr ""
-"A não importar Identificadores (IDs) desconhecidos de questionário: \"%s\""
 
 #: ../sdaps/gui/__init__.py:59
 msgid ""
 "The survey does not have any images! Please add images (and run recognize) "
 "before using the GUI."
 msgstr ""
-"O questionário não tem imagens! Por favor, adicione imagens e execute o "
-"comando \"recognize\" antes de usar a interface gráfica (GUI)."
 
 #: ../sdaps/gui/__init__.py:211
 msgid "Page|Invalid"
-msgstr "Página|Inválida"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:214
 #, python-format
 msgid "Page %i"
 msgid_plural "Page %i"
-msgstr[0] "Página %i"
-msgstr[1] "Página %i"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../sdaps/gui/__init__.py:256
 msgid "Copyright © 2007-2014 The SDAPS Authors"
-msgstr "Direitos de autor © 2007-2014 Autores do SDAPS"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:258
 msgid "Scripts for data acquisition with paper based surveys"
 msgstr ""
-"SDAPS - Scripts para aquisição de dados de questionários baseados em papel"
 
 #: ../sdaps/gui/__init__.py:259
 msgid "http://sdaps.org"
-msgstr "http://sdaps.org"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:260
 msgid "translator-credits"
-msgstr "Rodrigo Antonio Müller; Rui Mendes"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:305
 #, python-format
 msgid " of %i"
-msgstr " de %i"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:306
 #, python-format
 msgid "Recognition Quality: %.2f"
-msgstr "Qualidade de reconhecimento: %.2f"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:322
 msgid ""
 "You have reached the first page of the survey. Would you like to go to the "
 "last page?"
 msgstr ""
-"Atingiu a primeira página do questionário. Quer ir para a última página?"
 
 #: ../sdaps/gui/__init__.py:324
 msgid "Go to last page"
-msgstr "Ir para a última página"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:346
 msgid ""
 "You have reached the last page of the survey. Would you like to go to the "
 "first page?"
 msgstr ""
-"Atingiu a última página do questionário. Quer ir para a primeira página?"
 
 #: ../sdaps/gui/__init__.py:348
 msgid "Go to first page"
-msgstr "Ir para a primeira página"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:457
 msgid "Close without saving"
-msgstr "Fechar sem guardar"
+msgstr ""
 
 #: ../sdaps/gui/__init__.py:461
 msgid ""
@@ -679,112 +594,100 @@ msgid ""
 "\n"
 "If you do not save you may loose data."
 msgstr ""
-"<b>Quer guardar o projeto antes de fechar?</b>\n"
-"\n"
-"Se não guardar, irá perder os dados."
 
 #: ../sdaps/gui/main_window.ui.h:1
 msgid "Forward"
-msgstr "Próximo"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:2
 msgid "Previous"
-msgstr "Anterior"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:3
 msgid "Zoom In"
-msgstr "Ampliar"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:4
 msgid "Zoom Out"
-msgstr "Reduzir"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:5
 msgid "SDAPS"
-msgstr "SDAPS"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:6
 msgid "_File"
-msgstr "_Ficheiro"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:7
 msgid "_View"
-msgstr "_Ver"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:8
 msgid "_Help"
-msgstr "_Ajuda"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:9
 msgid "Page Rotated"
-msgstr "Página rodada"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:10
 msgid "Sort by Quality"
-msgstr "Ordenar pela qualidade"
+msgstr ""
 
 #: ../sdaps/gui/main_window.ui.h:11
 msgid "label"
-msgstr "etiqueta"
+msgstr ""
 
 #: ../sdaps/gui/widget_buddies.py:56
 msgid "<b>Global Properties</b>"
-msgstr "<b>Propriedades globais</b>"
+msgstr ""
 
 #: ../sdaps/gui/widget_buddies.py:60
 msgid "Sheet valid"
-msgstr "Folha válida"
+msgstr ""
 
 #: ../sdaps/gui/widget_buddies.py:61
 msgid "Sheet Verified"
-msgstr "Folha verificada"
+msgstr ""
 
 #: ../sdaps/gui/widget_buddies.py:62
 msgid "Page Verified"
-msgstr "Página verificada"
+msgstr ""
 
 #: ../sdaps/gui/widget_buddies.py:63
 msgid "Empty"
-msgstr "Vazio"
+msgstr ""
 
 #: ../sdaps/gui/widget_buddies.py:75 ../sdaps/gui/widget_buddies.py:105
 msgid "<b>Questionnaire ID: </b>"
-msgstr "<b>ID do questionário: </b>"
+msgstr ""
 
 #: ../sdaps/image/__init__.py:47
 msgid ""
 "It appears you have not build the C extension. Please run \"./setup.py build"
 "\" in the toplevel directory."
 msgstr ""
-"Parece que não compilou a extensão C. Por favor execute o comando \"./"
-"setup.py build\" no diretório principal."
 
 #: ../sdaps/utils/latex.py:29
 msgid ""
 "The latex character map is missing! Please build it using the supplied tool "
 "(create-latexmap.py)."
 msgstr ""
-"Falta o mapa de caracteres latex! Por favor compile-o utilizando a "
-"ferramenta fornecida (create-latexmap.py)."
 
 #: ../sdaps/utils/latex.py:69
 msgid ""
 "Generated string for LaTeX contains unicode characters. This may not work "
 "correctly and could mean the LaTeX character map needs to be updated."
 msgstr ""
-"A expressão gerada para o LaTeX contém caracteres unicode. Isto pode não "
-"funcionar corretamente e pode significar que o mapa de caracteres LaTeX tem "
-"de ser atualizado."
 
 #: ../sdaps/utils/opencv.py:35
 msgid "Cannot convert PDF files as poppler is not installed or usable!"
 msgstr ""
-"Não é possível converter ficheiros PDF, pois o poppler não está instalado ou "
-"não é utilizável!"
 
 #: ../sdaps/utils/opencv.py:44
 msgid "File does not exist"
-msgstr "O ficheiro não existe"
+msgstr ""
 
 #. The old code used to first filter, and then run; but that is
 #. a bit ineffective in a way
@@ -792,80 +695,73 @@ msgstr "O ficheiro não existe"
 #, python-format
 msgid "%i sheet"
 msgid_plural "%i sheets"
-msgstr[0] "%i folha"
-msgstr[1] "%i folhas"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../sdaps/model/survey.py:402
 #, python-format
 msgid "Processed %i of %i sheets, took %f seconds"
-msgstr "Processadas %i de %i folhas, demorou %f segundos"
+msgstr ""
 
 #: ../sdaps/model/survey.py:449
 msgid ""
 "A questionnaire that is printed in duplex needs an even amount of pages!"
 msgstr ""
-"Um questionário impresso em dupla face necessita de uma quantidade par de "
-"páginas!"
 
 #: ../sdaps/model/survey.py:453
 msgid ""
 "The 'classic' style only supports a maximum of six pages! Use the 'code128' "
 "style if you require more pages."
 msgstr ""
-"O estilo 'classic' suporta no máximo apenas seis páginas! Use o estilo "
-"'code128' se precisa de mais páginas."
 
 #: ../sdaps/model/survey.py:466
 msgid "IDs need to be integers in \"classic\" style!"
-msgstr "Os IDs têm de ser números inteiros no estilo \"clássico\"!"
+msgstr ""
 
 #: ../sdaps/model/survey.py:472
 #, python-format
 msgid "Invalid character %s in questionnaire ID \"%s\" in \"code128\" style!"
 msgstr ""
-"Caractere inválido %s no ID do questionário \"%s\" com estilo \"code128\"!"
 
 #: ../sdaps/model/survey.py:476
 msgid ""
 "SDAPS cannot draw a questionnaire ID with the \"custom\" style. Do this "
 "yourself somehow!"
 msgstr ""
-"SDAPS não pode desenhar um ID de questionário com o estilo \"custom\". Faça "
-"isto de alguma forma!"
 
 #. in simplex mode every page will have a matrix; it might be a None
 #. matrix though
 #: ../sdaps/recognize/buddies.py:71
 #, python-format
 msgid "%s, %i: Matrix not recognized."
-msgstr "%s, %i: matriz não reconhecida."
+msgstr ""
 
 #: ../sdaps/recognize/buddies.py:80
 #, python-format
 msgid "%s, %i: Rotation not found."
-msgstr "%s, %i: rotação não detetada."
+msgstr ""
 
 #. Copy the rotation over (if required) and print warning if the rotation is unknown
 #: ../sdaps/recognize/buddies.py:84
 #, python-format
 msgid "Neither %s, %i or %s, %i has a known rotation!"
-msgstr "Nem %s, %i ou %s, %i tem uma rotação conhecida!"
+msgstr ""
 
 #: ../sdaps/recognize/buddies.py:96
 #, python-format
 msgid "%s, %i: Matrix not recognized (again)."
-msgstr "%s, %i: matriz não reconhecida (novamente)."
+msgstr ""
 
 #: ../sdaps/recognize/buddies.py:110
 #, python-format
 msgid "%s, %i: Could not get page number."
-msgstr "%s, %i: não foi possível obter o número da página."
+msgstr ""
 
 #. Whoa, that should not happen.
 #: ../sdaps/recognize/buddies.py:130
 #, python-format
 msgid "Neither %s, %i or %s, %i has a known page number!"
-msgstr "Nem %s, %i ou %s, %i tem um número de página conhecido!"
+msgstr ""
 
 #. We don't touch the ignore flag in this case
 #. Simply print a message as this should *never* happen
@@ -877,67 +773,52 @@ msgid ""
 "inserting dummy pages. Maybe you did a simplex scan but added it in duplex "
 "mode? The pages in question are %s, %i and %s, %i."
 msgstr ""
-"Tenho um documento em folhas de uma face (simplex), onde duas páginas "
-"adjacentes tem um número de página conhecido. Isto nunca devia acontecer, "
-"pois mesmo as digitalizações de uma face são convertidas para folhas de "
-"dupla face, com a inserção de páginas vazias. Será que fez uma digitalização "
-"de folha de uma face, mas a adicionou em modo de dupla face? As páginas em "
-"questão são %s, %i e %s, %i."
 
 #: ../sdaps/recognize/buddies.py:158
 #, python-format
 msgid "Images %s, %i and %s, %i do not have consecutive page numbers!"
-msgstr "As imagens %s, %i e %s, %i não tem números de página consecutivos!"
+msgstr ""
 
 #: ../sdaps/recognize/buddies.py:174
 #, python-format
 msgid "No page number for page %s, %i exists."
-msgstr "Não existe número de página para a página %s, %i."
+msgstr ""
 
 #: ../sdaps/recognize/buddies.py:179
 #, python-format
 msgid "Page number for page %s, %i already used by another image."
 msgstr ""
-"O número de página para a página %s, %i já é utilizado por outra imagem."
 
 #: ../sdaps/recognize/buddies.py:185
 #, python-format
 msgid "Page number %i for page %s, %i is out of range."
-msgstr "O número de página %i para a página %s, %i está fora do intervalo."
+msgstr ""
 
 #: ../sdaps/recognize/buddies.py:202
 #, python-format
 msgid "%s, %i: Could not read survey ID, but should be able to."
 msgstr ""
-"%s, %i: não foi possível ler o identificador (ID) do questionário, mas devia "
-"ser possível fazê-lo."
 
 #: ../sdaps/recognize/buddies.py:206
 #, python-format
 msgid "Could not read survey ID of either %s, %i or %s, %i!"
 msgstr ""
-"Não foi possível ler o identificador (ID) do questionário %s, %i ou %s, %i!"
 
 #. Broken survey ID ...
 #: ../sdaps/recognize/buddies.py:213
 #, python-format
 msgid "Got a wrong survey ID (%s, %i)! It is %s, but should be %i."
 msgstr ""
-"Tem um identificador (ID) errado do questionário (%s, %i)! É %s, mas devia "
-"ser %i."
 
 #: ../sdaps/recognize/buddies.py:235
 #, python-format
 msgid "%s, %i: Could not read questionnaire ID, but should be able to."
 msgstr ""
-"%s, %i: não foi possível ler o identificador (ID) do questionário, mas devia "
-"ser possível fazê-lo."
 
 #: ../sdaps/recognize/buddies.py:241
 #, python-format
 msgid "Could not read questionnaire ID of either %s, %i or %s, %i!"
 msgstr ""
-"Não foi possível ler o identificador (ID) do questionário %s, %i ou %s, %i!"
 
 #: ../sdaps/recognize/buddies.py:271
 msgid ""
@@ -945,87 +826,82 @@ msgid ""
 "use filters with this survey! You have to run a \"reorder\" step for this to "
 "work properly!"
 msgstr ""
-"Tem identificadores (IDs) diferentes em páginas diferentes para pelo menos "
-"uma folha! *NÃO* tente usar filtros com este questionário! Tem de executar o "
-"passo \"reorder\" para que isso funcione corretamente!"
 
 #: ../sdaps/recognize/buddies.py:326
 msgid "No style buddy loaded. This needs to be done for the \"custom\" style!"
 msgstr ""
-"Não foram carregadas definições de estilos. Isto tem de ser feito para o "
-"estilo \"custom\"!"
 
 #: ../sdaps/report/answers.py:188
 #, python-format
 msgid "Answers: %i"
-msgstr "Respostas: %i"
+msgstr ""
 
 #: ../sdaps/report/answers.py:190
 #, python-format
 msgid "Mean: %.2f"
-msgstr "Média: %.2f"
+msgstr ""
 
 #: ../sdaps/report/answers.py:192
 #, python-format
 msgid "Standard Deviation: %.2f"
-msgstr "Desvio padrão: %.2f"
+msgstr ""
 
 #: ../sdaps/report/__init__.py:75 ../sdaps/reporttex/__init__.py:140
 msgid "Turned in Questionnaires"
-msgstr "Quantidade de questionários"
+msgstr ""
 
 #: ../sdaps/report/__init__.py:92 ../sdaps/reporttex/__init__.py:139
 msgid "sdaps report"
-msgstr "Relatório SDAPS"
+msgstr ""
 
 #: ../sdaps/reset/__init__.py:29
 msgid "Removing stored data..."
-msgstr "A remover dados armazenados..."
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:62
 #, python-format
 msgid "Head %(l0)i got no title."
-msgstr "O cabeçalho %(l0)i não tem título."
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:74
 #, python-format
 msgid "%(class)s %(l0)i.%(l1)i got no question."
-msgstr "%(class)s %(l0)i.%(l1)i não tem perguntas."
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:114
 #, python-format
 msgid "Error in question \"%s\""
-msgstr "Erro na pergunta \"%s\""
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:118
 #, python-format
 msgid "%(class)s %(l0)i.%(l1)i got no boxes."
-msgstr "%(class)s %(l0)i.%(l1)i não tem caixas."
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:167
 #, python-format
 msgid "%(class)s %(l0)i.%(l1)i lower box out of range."
-msgstr "%(class)s %(l0)i.%(l1)i caixa baixa fora do intervalo."
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:172
 #, python-format
 msgid "%(class)s %(l0)i.%(l1)i upper box out of range."
-msgstr "%(class)s %(l0)i.%(l1)i caixa alta fora do intervalo."
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:177
 #, python-format
 msgid "%(class)s %(l0)i.%(l1)i lower box not before upper box."
-msgstr "%(class)s %(l0)i.%(l1)i caixa baixa não está antes da caixa alta."
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:213
 #, python-format
 msgid "%(class)s %(l0)i.%(l1)i got not exactly two answers."
-msgstr "%(class)s %(l0)i.%(l1)i não tem exatamente duas respostas."
+msgstr ""
 
 #: ../sdaps/setup/buddies.py:234
 #, python-format
 msgid "%(class)s %(l0)i.%(l1)i got not exactly one box."
-msgstr "%(class)s %(l0)i.%(l1)i não tem exatamente uma caixa."
+msgstr ""
 
 #: ../sdaps/stamp/__init__.py:38
 msgid ""
@@ -1033,9 +909,6 @@ msgid ""
 "will be identical as the survey has been configured to not use questionnaire "
 "IDs for each sheet."
 msgstr ""
-"Não pode especificar o número de folhas para este questionário. Todos os "
-"questionários serão idênticos já que o questionário foi configurado para não "
-"usar identificadores (IDs) de questionário em cada folha."
 
 #: ../sdaps/stamp/__init__.py:76
 msgid ""
@@ -1043,9 +916,6 @@ msgid ""
 "will be unique. You need to use on of the options to add new IDs or use the "
 "existing ones."
 msgstr ""
-"Este questionário foi configurado para usar identificadores (IDs) de "
-"questionários. Cada questionário será único. Por isso, deve ser usada uma "
-"das opções, para adicionar novos IDs ou usar os existentes."
 
 #: ../sdaps/stamp/latex.py:18
 msgid ""
@@ -1053,67 +923,58 @@ msgid ""
 "not have different questionnaire IDs printed on each sheet.\n"
 "I am going to do so anyways."
 msgstr ""
-"Não devia ser necessário estampar um projeto SDAPS que usa LaTeX e não tem "
-"diferentes IDs de questionário impresso em cada folha.\n"
-"Vou fazê-lo de qualquer maneira."
 
 #: ../sdaps/stamp/latex.py:26
 #, python-format
 msgid "Running %s now twice to generate the stamped questionnaire."
-msgstr "A executar %s duas vezes para gerar o questionário estampado."
+msgstr ""
 
 #: ../sdaps/stamp/latex.py:30 ../sdaps/setuptex/__init__.py:107
 #: ../sdaps/setuptex/__init__.py:148 ../sdaps/reporttex/__init__.py:162
 #, python-format
 msgid "Error running \"%s\" to compile the LaTeX file."
-msgstr "Erro ao executar \"%s\" para compilar o ficheiro LaTeX."
+msgstr ""
 
 #: ../sdaps/stamp/latex.py:36
 #, python-format
 msgid ""
 "An error occured during creation of the report. Temporary files left in '%s'."
 msgstr ""
-"Ocorreu um erro durante a criação do relatório. Os ficheiros temporários "
-"foram deixados em '%s'."
 
 #: ../sdaps/setuptex/__init__.py:46
 msgid "The survey directory already exists."
-msgstr "Já existe o diretório do questionário."
+msgstr ""
 
 #: ../sdaps/setuptex/__init__.py:51
 #, python-format
 msgid "Unknown file type (%s). questionnaire_tex should be of type text/x-tex."
 msgstr ""
-"Tipo de ficheiro desconhecido (%s). O questionnaire_tex deve ser do tipo "
-"text/x-tex."
 
 #: ../sdaps/setuptex/__init__.py:52
 msgid "Will keep going, but expect failure!"
-msgstr "Vai continuar, mas espere encontrar falhas!"
+msgstr ""
 
 #: ../sdaps/setuptex/__init__.py:57
 #, python-format
 msgid "Unknown file type (%s). additionalqobjects should be text/plain."
 msgstr ""
-"Tipo de ficheiro desconhecido (%s). O additionalqobjects deve ser do tipo "
-"text/plain."
 
 #: ../sdaps/setuptex/__init__.py:103 ../sdaps/setuptex/__init__.py:143
 #, python-format
 msgid "Running %s now twice to generate the questionnaire."
-msgstr "A executar %s duas vezes para gerar o questionário."
+msgstr ""
 
 #: ../sdaps/setuptex/__init__.py:122
 msgid "Caught an Exception while parsing the SDAPS file. The current state is:"
-msgstr "Houve uma exceção ao processar o ficheiro SDAPS. O estado atual é:"
+msgstr ""
 
 #: ../sdaps/setuptex/__init__.py:136
 msgid ""
 "Some combination of options and project properties do not work. Aborted "
 "Setup."
 msgstr ""
-"Algumas combinações de opções e propriedades do projeto não funcionam. "
-"Instalação abortada."
+"Combinație de opțiuni și proprietăți ale proiectului incompatibile. Setup "
+"abandonat."
 
 #: ../sdaps/setuptex/__init__.py:162
 msgid ""
@@ -1121,181 +982,28 @@ msgid ""
 "You can for example check the questionnaire.log file for LaTeX compile "
 "errors."
 msgstr ""
-"Ocorreu um erro na rotina de instalação. O diretório do questionário ainda "
-"existe. Pode ver o ficheiro questionnaire.log para verificar se existem "
-"erros de compilação do LaTeX."
+"A apărut o eroare în procedura de setup. Directorul sondajului încă există. "
+"Puteți verifica erorile de compilare LaTeX în fișierul questionnaire.log."
 
 #: ../sdaps/reporttex/__init__.py:107
 msgid "author|Unknown"
-msgstr "autor|Desconhecido"
+msgstr "autor|Necunoscut"
 
 #: ../sdaps/reporttex/__init__.py:138
 msgid "tex language|english"
-msgstr "idioma do texto|português"
+msgstr "limbaj tex|română"
 
 #: ../sdaps/reporttex/__init__.py:155
 #, python-format
 msgid "The TeX project with the report data is located at '%s'."
-msgstr "O projeto TeX com os dados do relatório está localizado em '%s'."
+msgstr "Proiectul TeX cu datele raportului este disponibil la '%s'."
 
 #: ../sdaps/reporttex/__init__.py:158
 #, python-format
 msgid "Running %s now twice to generate the report."
-msgstr "A executar %s duas vezes para gerar o relatório."
+msgstr ""
 
 #: ../sdaps/reporttex/__init__.py:168
 #, python-format
 msgid "An occured during creation of the report. Temporary files left in '%s'."
 msgstr ""
-"Ocorreu um erro durante a criação do relatório. Os ficheiros temporários "
-"foram deixados em '%s'."
-
-#~ msgid "%f seconds per sheet"
-#~ msgstr "%f segundos por folha"
-
-#~ msgid "Running upgrade routines for file format version %i"
-#~ msgstr ""
-#~ "Executando rotinas de atualização para a versão de formato de ficheiro %i"
-
-#~ msgid "Create a new survey using an ODT document."
-#~ msgstr "Criar uma nova pesquisa usando um documento ODT."
-
-#~ msgid ""
-#~ "Create a new surevey from an ODT document. The PDF export\n"
-#~ "    of the file needs to be specified at the same time. SDAPS will "
-#~ "import\n"
-#~ "    metadata (properties) and the title from the ODT document."
-#~ msgstr ""
-#~ "Cria uma nova pesquisa de um documento ODT. O arquivo exportado em PDF\n"
-#~ "     precisa ser especificado ao mesmo tempo. O SDAPS importará os\n"
-#~ "     metadados (propriedades) e o título do documento ODT."
-
-#~ msgid "The ODT Document"
-#~ msgstr "O documento ODT"
-
-#~ msgid "PDF export of the ODT document"
-#~ msgstr "Arquivo PDF exportado a partir do documento ODT"
-
-#~ msgid "Enable printing of the survey ID (default)."
-#~ msgstr "Ativar a impressão do ID da pesquisa (padrão)."
-
-#~ msgid "Disable printing of the survey ID."
-#~ msgstr "Desativar a impressão do ID da pesquisa."
-
-#~ msgid "Enable printing of the questionnaire ID."
-#~ msgstr "Ativar a impressão do ID do questionário."
-
-#~ msgid "Disable printing of the questionnaire ID (default)."
-#~ msgstr "Desativar a impressão do ID do questionário (padrão)."
-
-#~ msgid ""
-#~ "Set an additional global ID for tracking. This can can only be used in "
-#~ "the \"code128\" style."
-#~ msgstr ""
-#~ "Definir um ID Global adicional para monitoramento. Isto só pode ser "
-#~ "utilizado no estilo \"code128\"."
-
-#~ msgid ""
-#~ "The stamping style to use. Should be either \"classic\" or \"code128\". "
-#~ "Use \"code128\" for more features."
-#~ msgstr ""
-#~ "O estilo que é usado para estampar. Deve ser \"classic\" ou \"code128\". "
-#~ "Use \"code128\" para mais recursos."
-
-#~ msgid ""
-#~ "Use duplex mode (ie. only print the IDs on the back side). Requires a "
-#~ "mulitple of two pages."
-#~ msgstr ""
-#~ "Use o modo duplex (ou seja, só imprimir as identificações na parte de "
-#~ "trás). Requer um múltiplo de duas páginas."
-
-#~ msgid ""
-#~ "Use simplex mode. IDs are printed on each page. You need a simplex scan "
-#~ "currently!"
-#~ msgstr ""
-#~ "Use o modo simplex. IDs são impressos em cada página. Você precisa de uma "
-#~ "verificação simplex atualmente!"
-
-#~ msgid ""
-#~ "Unknown file type (%s). questionnaire_odt should be application/vnd.oasis."
-#~ "opendocument.text."
-#~ msgstr ""
-#~ "Tipo de arquivo desconhecido (%s). O questionnaire_odt deve ser do tipo "
-#~ "application/vnd.oasis.opendocument.text."
-
-#~ msgid "Unknown file type (%s). questionnaire_pdf should be application/pdf."
-#~ msgstr ""
-#~ "Tipo de arquivo desconhecido (%s). O questionnaire_pdf deve ser do tipo "
-#~ "application/pdf."
-
-#~ msgid ""
-#~ "Caught an Exception while parsing the ODT file. The current state is:"
-#~ msgstr "Houve uma exceção ao analisar o arquivo ODT. O estado atual é:"
-
-#~ msgid ""
-#~ "If the dependencies for the \"annotate\" command are installed, then an "
-#~ "annotated version will be created next to the original PDF file."
-#~ msgstr ""
-#~ "Se as dependências para o comando \"annotate\" estão instaladas, uma "
-#~ "versão anotada será criada junto ao arquivo PDF original."
-
-#~ msgid ""
-#~ "Warning: Ignoring a box (page: %i, x: %.1f, y: %.1f, width: %.1f, height: "
-#~ "%.1f)."
-#~ msgstr ""
-#~ "Aviso: Ignorando uma caixa (página: %i, x: %.1f, y: %.1f, largura: %.1f, "
-#~ "altura: %.1f)."
-
-#~ msgid "Survey-ID: %i"
-#~ msgstr "ID da Pesquisa: %i"
-
-#~ msgid "Questionnaire-ID: %i"
-#~ msgstr "ID do Questionário: %i"
-
-#, fuzzy
-#~ msgid "You need to have either PDFtk or pyPdf installed. PDFtk is faster."
-#~ msgstr ""
-#~ "Você precisa ter o pdftk ou o pyPdf instalado. pdftk é o método mais "
-#~ "rápido."
-
-#~ msgid "Creating stamp PDF for %i sheet"
-#~ msgid_plural "Creating stamp PDF for %i sheets"
-#~ msgstr[0] "Criando estampa PDF para %i folha"
-#~ msgstr[1] "Criando estampa PDF para %i folhas"
-
-#~ msgid "%i sheet; %f seconds per sheet"
-#~ msgid_plural "%i sheet; %f seconds per sheet"
-#~ msgstr[0] "%i folha; %f segundos por folha"
-#~ msgstr[1] "%i folhas; %f segundos por folha"
-
-#, fuzzy
-#~ msgid "Marking using PDFtk"
-#~ msgstr "Estampando com pdftk"
-
-#, fuzzy
-#~ msgid "PDFtk: Overlaying the original PDF with the markings."
-#~ msgstr "pdftk: Sobrepondo o PDF original com as marcas."
-
-#, fuzzy
-#~ msgid "PDFtk: Splitting out page %d of each stack."
-#~ msgid_plural "PDFtk: Splitting out page %d of each stack."
-#~ msgstr[0] "pdftk: Extraindo a página %d de cada folha."
-#~ msgstr[1] "pdftk: Extraindo a página %d de cada folha."
-
-#, fuzzy
-#~ msgid "PDFtk: Splitting the questionnaire for marking."
-#~ msgstr "pdftk: Dividindo o questionário para marca d'água."
-
-#, fuzzy
-#~ msgid "PDFtk: Marking page %d of all stacks."
-#~ msgid_plural "PDFtk: Marking page %d of all stacks."
-#~ msgstr[0] "pdftk: Criando marca d'água na página %d de todas as folhas."
-#~ msgstr[1] "pdftk: Criando marca d'água na página %d de todas as folhas."
-
-#~ msgid "pdftk: Assembling everything into the final PDF."
-#~ msgstr "pdftk: Montando tudo no PDF final."
-
-#, fuzzy
-#~ msgid "Marking using pyPdf. For faster marking, install PDFtk."
-#~ msgstr ""
-#~ "Estampando com pyPdf. Para estampar mais rapidamente, instale o pdftk."

@@ -92,8 +92,15 @@ class Provider(object):
 
     def __call__(self):
         # Add all images that are "valid" ie. everything except back side of
-        # a simplex printout
-        new_images = [img for img in sorted(self.survey.sheet.images, key=lambda Image: Image.page_number) if not img.ignored]
+        # a simplex printout.
+        new_images = [img for img in self.survey.sheet.images if not img.ignored]
+
+        # Try to sort the images, which may fail if the page numbers have not been
+        # recognised
+        try:
+            new_images.sort(key=lambda Image: Image.page_number)
+        except TypeError:
+            pass
 
         self.images.extend(new_images)
         # Insert each image of the sheet into the qualities array
@@ -304,7 +311,7 @@ class MainWindow(object):
         self.update_page_status()
         self.sheet.update_state()
 
-        self.provider.survey.questionnaire.widget.sync_state()
+        self.provider.survey.questionnaire.widget.sync_state(self.provider.image)
 
     def go_to_previous_page(self, *args):
         if not self.provider.previous(cycle=False):
@@ -416,10 +423,11 @@ class MainWindow(object):
             # is good.
 
             # Mark as verified
-            self.provider.image.sheet.verified = True
+            self.provider.image.verified = True
 
-            # Mark the sheet as valid
-            self.provider.image.sheet.valid = True
+            # Mark the sheet as valid if it is verified
+            if self.provider.image.sheet.verified:
+                self.provider.image.sheet.valid = True
 
             if event.state & Gdk.ModifierType.SHIFT_MASK:
                 self.go_to_previous_page()

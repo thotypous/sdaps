@@ -35,7 +35,11 @@ class DataObject(object):
 
     def get_data(self):
         if not self.id in self.sheet.data:
-            self.sheet.data[self.id] = getattr(data, self.__class__.__name__)(self)
+            if hasattr(self, '_data_object'):
+                clsname = self._data_object
+            else:
+                clsname = self.__class__.__name__
+            self.sheet.data[self.id] = getattr(data, clsname)(self)
         return self.sheet.data[self.id]
 
     data = property(get_data)
@@ -86,7 +90,7 @@ class Questionnaire(buddy.Object):
     def disconnect_data_changed(self, func):
         self._notify_changed_list.remove(func)
 
-    def __unicode__(self):
+    def __str__(self):
         return str().join(
             ['%s\n' % self.__class__.__name__] +
             [str(qobject) for qobject in self.qobjects]
@@ -103,7 +107,7 @@ class Questionnaire(buddy.Object):
         self._notify_changed_list = list()
 
     def __setstate__(self, data):
-        self.__dict__ = data
+        self.__dict__.update(data)
 
         self._notify_changed_list = list()
 
@@ -111,19 +115,22 @@ class Questionnaire(buddy.Object):
             self.qobjects[i] = db.fromJson(self.qobjects[i], sys.modules[__name__])
             self.qobjects[i].questionnaire = self
 
-class QObject(buddy.Object):
+class QObject(buddy.Object, DataObject):
     '''
     Identification: id ==(major, minor)
     Reference: survey.questionnaire.qobjects[i](i != id)
     Parent: self.questionnaire
     '''
 
+    _data_object = 'QObject'
     _save_skip = {'survey', 'questionnaire'}
 
     def __init__(self):
         self.questionnaire = None
         self.boxes = list()
         self.last_id = -1
+        self.max_value = -1
+        self.var = None
         self.init_attributes()
 
     def init_attributes(self):
@@ -136,6 +143,7 @@ class QObject(buddy.Object):
     def add_box(self, box):
         box.question = self
         self.last_id = box.init_id(self.last_id)
+        self.max_value = max(self.max_value, box.init_value(self.max_value))
         self.boxes.append(box)
 
     def get_sheet(self):
@@ -161,7 +169,7 @@ class QObject(buddy.Object):
         ids = [str(x) for x in self.id]
         return '_' + '_'.join(ids)
 
-    def __unicode__(self):
+    def __str__(self):
         return '(%s)\n' % (
             self.__class__.__name__,
         )
@@ -179,7 +187,10 @@ class QObject(buddy.Object):
         return None
 
     def __setstate__(self, data):
-        self.__dict__ = data
+        # Attributes that may not (yet) be present in the database
+        self.var = None
+
+        self.__dict__.update(data)
         self.id = tuple(self.id)
 
         for i in range(len(self.boxes)):
@@ -196,7 +207,7 @@ class Head(QObject):
         self.id = (id[0] + 1, ) + (0,)*(len(id)-1)
         return self.id
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s(%s) %s\n' % (
             self.id_str(),
             self.__class__.__name__,
@@ -210,13 +221,12 @@ class Question(QObject):
         QObject.init_attributes(self)
         self.page_number = 0
         self.question = str()
-        self.var = None
 
     def calculate_survey_id(self, md5):
         for box in self.boxes:
             box.calculate_survey_id(md5)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s(%s) %s {%i}\n' % (
             self.id_str(),
             self.__class__.__name__,
@@ -227,9 +237,9 @@ class Question(QObject):
 
 class Choice(Question):
 
-    def __unicode__(self):
+    def __str__(self):
         return str().join(
-            [Question.__unicode__(self)] +
+            [Question.__str__(self)] +
             [str(box) for box in self.boxes]
         )
 
@@ -249,25 +259,13 @@ class Option(Question):
         self.value_none = -1
         self.value_invalid = -2
 
-    def __unicode__(self):
+    def __str__(self):
         return str().join(
-            [Question.__unicode__(self)] +
+            [Question.__str__(self)] +
             [str(box) for box in self.boxes]
         )
 
-    def add_box(self, box):
-        Question.add_box(self, box)
-        if box.var:
-            var = box.var.rsplit('_', 1)
-            if len(var) != 2:
-                return
-
-            assert not self.var or self.var == var[0]
-            self.var = var[0]
-
     def get_answer(self):
-        '''it's a list containing all selected values
-        '''
         answer = list()
         for box in self.boxes:
             if box.data.state:
@@ -282,8 +280,33 @@ class Option(Question):
                 return self.value_invalid
 
     def set_answer(self, answer):
+        # Used for CSV import. Set the first box with the right value, unset
+        # all others.
+        # Raises an exception if not found
+
+        # Unset all if value is the none value
+        if answer == self.value_none:
+            for box in self.boxes:
+                box.data.state = 0
+            return
+
+        # Set all if value is the none value
+        # NOTE: Assumes more than one box!
+        if answer == self.value_invalid:
+            assert len(self.boxes) > 1
+            for box in self.boxes:
+                box.data.state = 1
+            return
+
+        found = False
         for box in self.boxes:
-            box.data.state = box.value == answer
+            if not found and box.value == answer:
+                found = True
+                box.data.state = 1
+            else:
+                box.data.state = 0
+
+        assert(found)
 
 class Range(Option):
 
@@ -292,16 +315,16 @@ class Range(Option):
         self.answers = ("", "")
         self.range = (0, 0)
 
-    def __unicode__(self):
+    def __str__(self):
         if len(self.answers) == 2:
             return str().join(
-                [Question.__unicode__(self)] +
+                [Question.__str__(self)] +
                 ['\t%s (%i) - %s (%i)\n' % (self.answers[0], self.range[0], self.answers[1], self.range[1])] +
                 [str(box) for box in self.boxes]
             )
         else:
             return str().join(
-                [Question.__unicode__(self)] +
+                [Question.__str__(self)] +
                 ['\t? - ?\n'] +
                 [str(box) for box in self.boxes]
             )
@@ -312,9 +335,9 @@ class Mark(Range):
 
 class Text(Question):
 
-    def __unicode__(self):
+    def __str__(self):
         return str().join(
-            [Question.__unicode__(self)] +
+            [Question.__str__(self)] +
             [str(box) for box in self.boxes]
         )
 
@@ -336,15 +359,15 @@ class Additional_Head(Head):
     pass
 
 
-class Additional_Mark(Question, DataObject):
+class Additional_Mark(Question):
 
     def init_attributes(self):
         Question.init_attributes(self)
         self.answers = list()
 
-    def __unicode__(self):
+    def __str__(self):
         return str().join(
-            [Question.__unicode__(self)] +
+            [Question.__str__(self)] +
             ['\t%s - %s\n' % tuple(self.answers)]
         )
 
@@ -355,16 +378,16 @@ class Additional_Mark(Question, DataObject):
         self.data.value = answer
 
 
-class Additional_FilterHistogram(Question, DataObject):
+class Additional_FilterHistogram(Question):
 
     def init_attributes(self):
         Question.init_attributes(self)
         self.answers = list()
         self.filters = list()
 
-    def __unicode__(self):
+    def __str__(self):
         result = []
-        result.append(Question.__unicode__(self))
+        result.append(Question.__str__(self))
         for i in range(len(self.answers)):
             result.append('\t%s - %s\n' % (self.answers[i], self.filters[i]))
         return str().join(result)
@@ -405,9 +428,17 @@ class Box(buddy.Object, DataObject):
         self.value = None
 
     def init_id(self, id):
+        id = id + 1
+
+        self.id = self.question.id + (id,)
+        return id
+
+    def init_value(self, value):
+        value = value + 1
+
         if self.value is None:
-            self.value = id + 1
-        self.id = self.question.id + (self.value,)
+            self.value = value
+
         return self.value
 
     def id_str(self):
@@ -430,7 +461,7 @@ class Box(buddy.Object, DataObject):
         tmp = struct.pack('!ffff', self.x, self.y, self.width, self.height)
         md5.update(tmp)
 
-    def __unicode__(self):
+    def __str__(self):
         return '\t%i(%s) %s %s %s %s %s\n' % (
             self.value,
             (self.__class__.__name__).ljust(8),
@@ -446,7 +477,7 @@ class Box(buddy.Object, DataObject):
             return self
 
     def __setstate__(self, data):
-        self.__dict__ = data
+        self.__dict__.update(data)
         self.id = tuple(self.id)
 
 class Checkbox(Box):
@@ -462,4 +493,8 @@ class Checkbox(Box):
 class Textbox(Box):
 
     pass
+
+class Codebox(Textbox):
+
+    _data_object = 'Textbox'
 

@@ -1,3 +1,100 @@
+Overview of Changes in SDAPS 1.9.7
+==================================
+
+This is a smaller bugfix release mostly to solve compatibility issues with
+older SDAPS versions.
+
+Important changes:
+ * Slightly improved command line parsing
+ * Fix various data format migration issues (#173, #175)
+ * Fix the reset and reorder commands to work again (#168)
+ * Update LaTeX class with a few minor fixes
+
+New and updated languages:
+ * Portuguese
+
+Overview of Changes in SDAPS 1.9.6
+==================================
+
+This is the next release to stabilize SDAPS in the run up to a 2.0 release.
+There are a number of smaller changes that change behaviour, so again, take
+some care when upgrading.
+
+Important changes:
+ * Allow adding review comments on whole sheets and questions (#148)
+ * Allow specifying the LaTeX engine used to compile the project (#150)
+ * Reorder CSV command parameters to match new layout
+ * Fix printing of state when an error occurs during setup (#163)
+ * Fix LaTeX class build script hanging when l3build is missing (#166, #153)
+ * Default to not align all group environments in a document (sdaps-class#15)
+ * Allow disabling all recognition related markings (sdaps-class#14)
+ * Add basic support for reading QR codes as part of questions (#2)
+
+New and updated languages:
+ * Norwegian Bokmål
+ * Portuguese
+ * Portuguese (Brazil)
+
+Overview of Changes in SDAPS 1.9.5
+==================================
+
+WARNING: This release breaks compatibility in a number of different ways,
+please be careful when upgrading.
+
+The most important change is that the command line argument order has been
+changed. The SDAPS command that is to be run is now the first argument, and
+the project directory is second.
+
+There have also been a number of changes to the LaTeX class, including new
+instruction texts that have not yet been translated to all languages.
+
+Important changes:
+ * Rework command line handling
+ * Default instructions for filling out the form are updated
+ * Margin handling in LaTeX class is improved
+ * "info" environment padding at the top of the page is improved
+ * Improved rotated header layouter for array question types
+
+New and updated languages:
+ * Korean
+ * Dutch
+ * Norwegian Bokmål
+ * French
+ * German
+
+Overview of Changes in SDAPS 1.9.4
+==================================
+
+Important changes:
+ * Ensure box IDs are unique (#142)
+ * Fix variable name handling of the single choice questions (#141)
+ * Make "verified" a property of each image, all images need to be marked as verified
+ * Add support for right to left languages:
+   - Implement RTL switching in LaTeX
+   - Make metadata file line numbered
+   - Fix anotation line length (and indentation for RTL languages)
+   - Rework choicequestion layout
+
+New and updated languages:
+ * Romanian
+ * Sinhala
+ * Spanish
+
+Overview of Changes in SDAPS 1.9.3
+==================================
+
+This is a bugfix release.
+
+Important changes:
+ * Fix TEXINPUTS environment variable handling (issue #120)
+ * convert: Improve DPI selection and detection for PDF conversion
+ * latex: Improved whitespace in rangearray with alternative choices
+ * latex: Handle \ior_get_str:NN deprecation
+ * latex: Fix single choice question metadata export
+
+New and updated languages:
+ * Polish
+
 Overview of Changes in SDAPS 1.9.2
 ==================================
 

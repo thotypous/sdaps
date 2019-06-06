@@ -61,12 +61,11 @@ def inner_ellipse(cr, x, y, width, height):
 
 def create_layout(cr, text, layout_info, indent=0):
     layout = PangoCairo.create_layout(cr)
-    text = text.encode('utf-8')
-    layout.set_text(text, len(text))
+    layout.set_text(text, -1)
     # Dont recreate the description all the time?
     font = Pango.FontDescription(layout_info['font'])
     layout.set_font_description(font)
-    layout.set_width(layout_info['twidth'] * Pango.SCALE)
+    layout.set_width((layout_info['twidth'] - 2 * indent) * Pango.SCALE)
     layout.set_wrap(Pango.WrapMode.WORD_CHAR)
 
     layout.indent = indent

@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import Gtk
-from gi.repository import GLib
+from gi.repository import GLib, GObject
 import cairo
 
 from sdaps import model
@@ -41,6 +41,7 @@ class Questionnaire(model.buddy.Buddy, metaclass=model.buddy.Register):
 
         self.obj.connect_data_changed(self.data_changed)
 
+        self._current_image = None
         self._notify_ensure_visible = list()
 
     def data_changed(self, questionnaire, qobj, obj, name, old_value):
@@ -57,12 +58,22 @@ class Questionnaire(model.buddy.Buddy, metaclass=model.buddy.Register):
         self.box.pack_start(widget, False, True, 0)
 
         self.valid_checkbox = Gtk.CheckButton.new_with_label(_('Sheet valid'))
-        self.verified_checkbox = Gtk.CheckButton.new_with_label(_('Verified'))
+        self.sheet_verified_checkbox = Gtk.CheckButton.new_with_label(_('Sheet Verified'))
+        self.page_verified_checkbox = Gtk.CheckButton.new_with_label(_('Page Verified'))
         self.empty_checkbox = Gtk.CheckButton.new_with_label(_('Empty'))
         self.empty_checkbox.set_sensitive(False)
 
+        frame = Gtk.Frame()
+        self.review_textbox = Gtk.TextView()
+        self.review_textbox.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        self.review_buffer = self.review_textbox.get_buffer()
+        self.review_buffer.connect('changed', self.review_buffer_changed_cb)
+        frame.add(self.review_textbox)
+
+        self.review_comments = Gtk.CheckButton.new_with_label(_('Empty'))
+
         self.valid_checkbox.connect('toggled', self.toggled_valid_cb)
-        self.verified_checkbox.connect('toggled', self.toggled_verified_cb)
+        self.page_verified_checkbox.connect('toggled', self.toggled_verified_cb)
 
         indent = Gtk.Alignment()
         indent.set_padding(0, 0, 10, 0)
@@ -77,8 +88,10 @@ class Questionnaire(model.buddy.Buddy, metaclass=model.buddy.Register):
 
         vbox.add(self.qid)
         vbox.add(self.valid_checkbox)
-        vbox.add(self.verified_checkbox)
+        vbox.add(self.sheet_verified_checkbox)
+        vbox.add(self.page_verified_checkbox)
         vbox.add(self.empty_checkbox)
+        vbox.add(frame)
 
         self.box.pack_start(indent, False, True, 0)
 
@@ -90,14 +103,28 @@ class Questionnaire(model.buddy.Buddy, metaclass=model.buddy.Register):
 
         return self.box
 
-    def sync_state(self):
+    def sync_state(self, image=None):
+        # This is to keep track of the currently active image.
+        if image:
+            self._current_image = image
+            assert self._current_image in self.obj.survey.sheet.images
+
         for qobject in self.obj.qobjects:
             qobject.widget.sync_state()
 
         self.qid.set_markup(_('<b>Questionnaire ID: </b>') + markup_escape_text(str(self.obj.survey.sheet.questionnaire_id)))
         self.valid_checkbox.set_active(self.obj.survey.sheet.valid)
-        self.verified_checkbox.set_active(self.obj.survey.sheet.verified)
+        self.sheet_verified_checkbox.set_active(self.obj.survey.sheet.verified)
+        self.page_verified_checkbox.set_active(self._current_image.verified)
         self.empty_checkbox.set_active(self.obj.survey.sheet.empty)
+
+        # Only update the text if it changed (or else recursion hits)
+        start = self.review_buffer.get_start_iter()
+        end = self.review_buffer.get_end_iter()
+        currtext = self.review_buffer.get_text(start, end, False)
+        review_comment = self.obj.survey.sheet.review_comment if self.obj.survey.sheet.review_comment else ''
+        if review_comment != currtext:
+            self.review_buffer.set_text(review_comment)
 
     def ensure_visible(self, widget):
         for func in self._notify_ensure_visible:
@@ -109,11 +136,18 @@ class Questionnaire(model.buddy.Buddy, metaclass=model.buddy.Register):
     def disconnect_ensure_visible(self, func):
         self._notify_ensure_visible.remove(func)
 
+    def review_buffer_changed_cb(self, buf):
+        start = self.review_buffer.get_start_iter()
+        end = self.review_buffer.get_end_iter()
+        currtext = self.review_buffer.get_text(start, end, False)
+
+        self.obj.survey.sheet.review_comment = currtext
+
     def toggled_valid_cb(self, widget):
         self.obj.survey.sheet.valid = widget.get_active()
 
     def toggled_verified_cb(self, widget):
-        self.obj.survey.sheet.verified = widget.get_active()
+        self._current_image.verified = widget.get_active()
 
 class QObject(model.buddy.Buddy, metaclass=model.buddy.Register):
 
@@ -122,18 +156,73 @@ class QObject(model.buddy.Buddy, metaclass=model.buddy.Register):
 
     def create_widget(self):
         self.widget = None
+        self.review_buffer = None
 
         return self.widget
+
+    def make_heading(self, title):
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox.set_margin_top(12)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        label = Gtk.Label()
+        label.set_markup('<b>%s %s</b>' % (self.obj.id_str(), markup_escape_text(title)))
+        label.set_halign(Gtk.Align.START)
+        label.show()
+        hbox.add(label)
+
+        image = Gtk.Image()
+        image.set_from_icon_name('document-edit-symbolic', Gtk.IconSize.BUTTON)
+        toggle = Gtk.ToggleButton(image=image)
+        toggle.set_halign(Gtk.Align.END)
+        toggle.set_margin_start(12)
+        hbox.add(toggle)
+        image.connect("button-press-event", lambda *args: print(pressed))
+        vbox.add(hbox)
+
+        self.review_frame = Gtk.Frame()
+        self.review_frame.set_margin_start(12)
+        self.review_textbox = Gtk.TextView()
+        self.review_textbox.show()
+        self.review_textbox.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        self.review_buffer = self.review_textbox.get_buffer()
+        self.review_buffer.connect('changed', self.review_buffer_changed_cb)
+        self.review_frame.add(self.review_textbox)
+        self.review_frame.hide()
+        self.review_frame.set_no_show_all(True)
+        vbox.add(self.review_frame)
+
+        toggle.bind_property("active",
+                             self.review_frame, "visible",
+                             GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL)
+
+        return vbox
 
     def sync_state(self):
         for box in self.obj.boxes:
             box.widget.sync_state()
+
+        # Only update the text if it changed (or else recursion hits)
+        if self.review_buffer:
+            start = self.review_buffer.get_start_iter()
+            end = self.review_buffer.get_end_iter()
+            currtext = self.review_buffer.get_text(start, end, False)
+            review_comment = self.obj.data.review_comment if self.obj.data.review_comment else ''
+            if review_comment != currtext:
+                self.review_frame.set_visible(bool(review_comment))
+                self.review_buffer.set_text(review_comment)
 
     def focus(self):
         self.obj.question.questionnaire.widget.ensure_visible(self.widget)
 
         if len(boxes) > 0:
             self.obj.boxes[0].widget.focus()
+
+    def review_buffer_changed_cb(self, buf):
+        start = self.review_buffer.get_start_iter()
+        end = self.review_buffer.get_end_iter()
+        currtext = self.review_buffer.get_text(start, end, False)
+
+        self.obj.data.review_comment = currtext
 
 
 class Head(QObject, metaclass=model.buddy.Register):
@@ -142,9 +231,7 @@ class Head(QObject, metaclass=model.buddy.Register):
     obj_class = model.questionnaire.Head
 
     def create_widget(self):
-        self.widget = Gtk.Label()
-        self.widget.set_markup('<b>%s %s</b>' % (self.obj.id_str(), markup_escape_text(self.obj.title)))
-        self.widget.props.xalign = 0.0
+        self.widget = self.make_heading(self.obj.title)
 
         return self.widget
 
@@ -157,18 +244,13 @@ class Question(QObject, metaclass=model.buddy.Register):
     def create_widget(self):
         self.widget = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        self.label = Gtk.Label()
-        self.label.set_markup('<b>%s %s</b>' % (self.obj.id_str(), markup_escape_text(self.obj.question)))
-        self.label.props.xalign = 0.0
+        self.label = self.make_heading(self.obj.question)
 
         self.widget.pack_start(self.label, False, True, 0)
 
-        indent = Gtk.Alignment()
-        indent.set_padding(0, 0, 10, 0)
-        self.widget.pack_end(indent, False, True, 0)
-
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        indent.add(vbox)
+        vbox.set_margin_start(12)
+        self.widget.pack_end(vbox, False, True, 0)
 
         for box in self.obj.boxes:
             widget = box.widget.create_widget()
@@ -185,9 +267,7 @@ class Range(Question, metaclass=model.buddy.Register):
     def create_widget(self):
         self.widget = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        self.label = Gtk.Label()
-        self.label.set_markup('<b>%s %s</b>' % (self.obj.id_str(), markup_escape_text(self.obj.question)))
-        self.label.props.xalign = 0.0
+        self.label = self.make_heading(self.obj.question)
 
         self.widget.pack_start(self.label, False, True, 0)
 
@@ -265,11 +345,9 @@ class Textbox(Box, metaclass=model.buddy.Register):
 
         self.widget.add(self.checkbox)
 
-        indent = Gtk.Alignment()
-        indent.set_padding(0, 0, 10, 0)
         frame = Gtk.Frame()
-        indent.add(frame)
-        self.widget.pack_end(indent, False, True, 0)
+        frame.set_margin_start(12)
+        self.widget.pack_end(frame, False, True, 0)
 
         self.textbox = Gtk.TextView()
         self.textbox.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)

@@ -24,7 +24,7 @@ class Sheet(buddy.Object):
 
     _save_attrs = {'data', 'images', 'survey_id',
                    'questionnaire_id', 'global_id', 'valid',
-                   'quality', 'recognized', 'verified'}
+                   'quality', 'recognized', 'review_comment' }
 
     def __init__(self):
         self.survey = None
@@ -35,9 +35,9 @@ class Sheet(buddy.Object):
         self.global_id = None
         self.valid = 1
         self.quality = 1
+        self.review_comment = None
 
         self.recognized = False
-        self.verified = False
 
     def add_image(self, image):
         self.images.append(image)
@@ -69,6 +69,10 @@ class Sheet(buddy.Object):
             state['data']['^'.join(str(_) for _ in k)] = v
 
     def __setstate__(self, data):
+        # Attributes that may not (yet) be present in the database
+        self.survey = None
+        self.review_comment = None
+
         _tmp = data['data']
         data['data'] = dict()
         for k, v in _tmp.items():
@@ -78,8 +82,24 @@ class Sheet(buddy.Object):
             data['images'][k] = db.fromJson(data['images'][k], Image)
             data['images'][k].sheet = self
 
-        self.__dict__ = data
-        self.survey = None
+        # Migrate old "verified" flag
+        if 'verified' in data:
+            for img in data['images']:
+                img.verified = data['verified']
+            del data['verified']
+
+        self.__dict__.update(data)
+
+    @property
+    def verified(self):
+        for img in self.images:
+            if img.ignored:
+                continue
+
+            if not img.verified:
+                return False
+
+        return True
 
     @property
     def empty(self):
@@ -163,6 +183,7 @@ class Image(buddy.Object):
         self.questionnaire_id = None
         #: Whether the page should be ignored (because it is a blank back side)
         self.ignored = False
+        self.verified = False
 
     def __setattr__(self, attr, value):
         if attr.startswith('_'):
@@ -170,5 +191,14 @@ class Image(buddy.Object):
         if attr != 'sheet':
             object.__setattr__(self, '_dirty', True)
 
+        try:
+            old_value = getattr(self, attr)
+        except AttributeError:
+            old_value = None
+
         object.__setattr__(self, attr, value)
+
+        # survey may be None if the sheet does not belong to a survey yet.
+        if hasattr(self, "sheet") and self.sheet is not None and self.sheet.survey is not None:
+            self.sheet.survey.questionnaire.notify_data_changed(None, None, attr, old_value)
 

@@ -1,6 +1,6 @@
 %global modulename sdaps
 #define commit SNAPSHOT_COMMIT
-%define relversion 1.9.2
+%define relversion 1.9.7
 %if 0%{?commit:1}
   %define shortcommit %(c=%{commit}; echo ${c:0:7})
   %define build_timestamp %(date +"%Y%m%d")
@@ -9,7 +9,7 @@
 Summary: SDAPS OMR utilities
 Name: sdaps
 Version: %{relversion}%{?commit:.}%{?build_timestamp}%{?commit:git}%{?shortcommit}
-Release: 0%{?dist}
+Release: 1%{?dist}
 License: GPLv3, LPPL1.3c
 Source0: %{name}-%{relversion}%{?commit:-}%{?shortcommit}.tar.gz
 Group: Applications/Science
@@ -17,9 +17,10 @@ URL: https://sdaps.org
 BuildRequires: python3-devel, libtiff-devel, python3-distutils-extra
 BuildRequires: pkgconfig, python3-pkgconfig, cairo-devel, python3-cairo-devel
 BuildRequires: python3-imaging, python3-reportlab, zbar
-BuildRequires: opencv-python3, python3-gobject, poppler-glib
+BuildRequires: python3-opencv, python3-gobject, poppler-glib
 BuildRequires: python3-setuptools, yum
 BuildRequires: intltool
+BuildRequires: gcc
 
 Recommends: opencv-python3, python3-gobject, poppler-glib, gtk3
 Suggests: libtiff-tools
@@ -83,5 +84,20 @@ IGNORE_PATTERN_EXTEND='\|^survey_id' ./run-test-locally.sh
 %{_bindir}/*
 
 %changelog
+* Sat Jun 01 2019 Benjamin Berg <bberg@redhat.com> - 1.9.7-1
+- New SDAPS release
+
+* Sun Jan 20 2019 Benjamin Berg <bberg@redhat.com> - 1.9.6-1
+- New SDAPS release
+
+* Sun Jan 20 2019 Benjamin Berg <bberg@redhat.com> - 1.9.5-1
+- New SDAPS release
+
+* Mon Nov 05 2018 Benjamin Berg <bberg@redhat.com> - 1.9.4-1
+- New SDAPS release
+
+* Wed Sep 12 2018 Benjamin Berg <bberg@redhat.com> - 1.9.3-1
+- New SDAPS release
+
 * Fri Mar 24 2017 Benjamin Berg <bberg@redhat.com> - 1.9.2-1
 - Initial package
