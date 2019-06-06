@@ -37,4 +37,5 @@ def create_stamp_pdf(survey, output_filename, questionnaire_ids):
 
         raise
 
+    #log.error(_("An error occured during creation of the report. Temporary files left in '%s'." % tmpdir))
     shutil.rmtree(tmpdir)
