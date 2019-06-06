@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u"""This module contains buddy objects to calculate statistics from the data.
+"""This module contains buddy objects to calculate statistics from the data.
 
 It is possible to search for large changes between different filters by calling
 the "reference" function after a calculation. After this the significant boolean
@@ -28,9 +28,8 @@ import math
 from sdaps import model
 
 
-class Questionnaire(model.buddy.Buddy):
+class Questionnaire(model.buddy.Buddy, metaclass=model.buddy.Register):
 
-    __metaclass__ = model.buddy.Register
     name = 'calculate'
     obj_class = model.questionnaire.Questionnaire
 
@@ -66,9 +65,8 @@ class Questionnaire(model.buddy.Buddy):
             qobject.calculate.reference()
 
 
-class QObject(model.buddy.Buddy):
+class QObject(model.buddy.Buddy, metaclass=model.buddy.Register):
 
-    __metaclass__ = model.buddy.Register
     name = 'calculate'
     obj_class = model.questionnaire.QObject
 
@@ -85,22 +83,18 @@ class QObject(model.buddy.Buddy):
         pass
 
 
-class Question(QObject):
+class Question(QObject, metaclass=model.buddy.Register):
 
-    __metaclass__ = model.buddy.Register
     name = 'calculate'
     obj_class = model.questionnaire.Question
 
 
-class Choice(Question):
+class Choice(Question, metaclass=model.buddy.Register):
     """
     :ivar count: Number of times the question was answered.
     :ivar values: Dictionary for each box with the ratio the answer was choosen.
     :ivar significant: Whether there was a significant difference to the reference run.
     """
-
-
-    __metaclass__ = model.buddy.Register
     name = 'calculate'
     obj_class = model.questionnaire.Choice
 
@@ -126,9 +120,8 @@ class Choice(Question):
         self.ref_count = self.count
         self.ref_values = self.values
 
-class Option(Choice):
+class Option(Choice, metaclass=model.buddy.Register):
 
-    __metaclass__ = model.buddy.Register
     name = 'calculate'
     obj_class = model.questionnaire.Option
 
@@ -139,7 +132,7 @@ class Option(Choice):
             self.count += 1
             self.values[answer] += 1
 
-class Range(Option):
+class Range(Option, metaclass=model.buddy.Register):
     """
     :ivar count: Number of times the question was answered.
     :ivar values: Dictionary for each box with the ratio the value was choosen.
@@ -147,8 +140,6 @@ class Range(Option):
     :ivar standard_deviation: The average value that was choosen.
     :ivar significant: Whether there was a significant difference to the reference run.
     """
-
-    __metaclass__ = model.buddy.Register
     name = 'calculate'
     obj_class = model.questionnaire.Range
 
@@ -182,15 +173,19 @@ class Range(Option):
                 self.values[key] = self.values[key] / float(self.count)
 
             if self.range_count > 0:
+                # First calculate the mean
+                for key in self.range_values:
+                    self.mean += key * self.range_values[key]
+                self.mean = self.mean / float(self.range_count)
+
+                # Now we can calculate the standard deviation
                 for key in self.range_values:
                     self.standard_deviation += self.range_values[key] * pow(key - self.mean, 2)
-                    self.mean += key * self.range_values[key]
-
-                    # Also devide by count
-                    self.range_values[key] = self.range_values[key] / float(self.count)
-
                 self.standard_deviation = math.sqrt(self.standard_deviation / float(self.range_count))
-                self.mean = self.mean / float(self.range_count)
+
+                # And finally store the percentage rather than count for each answer
+                for key in self.range_values:
+                    self.range_values[key] = self.range_values[key] / float(self.count)
 
                 if hasattr(self, 'ref_count'):
                     self.significant = abs(self.mean - self.ref_mean) > 0.1
@@ -201,9 +196,8 @@ class Range(Option):
         self.ref_mean = self.mean
 
 
-class Additional_FilterHistogram(Question):
+class Additional_FilterHistogram(Question, metaclass=model.buddy.Register):
 
-    __metaclass__ = model.buddy.Register
     name = 'calculate'
     obj_class = model.questionnaire.Additional_FilterHistogram
 

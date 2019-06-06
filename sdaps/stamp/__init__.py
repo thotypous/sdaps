@@ -60,7 +60,7 @@ def stamp(survey, output_filename, cmdline):
             # Create random IDs
             max = pow(2, 16)
             min = max - 50000
-            questionnaire_ids = range(min, max)
+            questionnaire_ids = list(range(min, max))
 
             # Remove any id that has already been used.
             for id in survey.questionnaire_ids:
@@ -85,7 +85,7 @@ def stamp(survey, output_filename, cmdline):
         # use the LaTeX stamper
         from sdaps.stamp.latex import create_stamp_pdf
     else:
-        from sdaps.stamp.generic import create_stamp_pdf
+        raise AssertionError('Only LaTeX stamping is currently supported!')
 
     create_stamp_pdf(survey, output_filename, questionnaire_ids)
 

@@ -20,7 +20,7 @@
 #include "transform.h"
 #include "surface.h"
 #include <Python.h>
-#include <pycairo.h>
+#include <py3cairo.h>
 #include <cairo.h>
 
 static PyObject *wrap_get_a1_from_tiff(PyObject *self, PyObject *args);
@@ -43,9 +43,7 @@ static PyObject *wrap_get_tiff_resolution(PyObject *self, PyObject *args);
 static PyObject *wrap_check_tiff_monochrome(PyObject *self, PyObject *args);
 static PyObject *wrap_kfill_modified(PyObject *self, PyObject *args);
 
-Pycairo_CAPI_t *Pycairo_CAPI;
-
-static PyMethodDef EvaluateMethods[] = {
+static PyMethodDef image_methods[] = {
 	{"get_a1_from_tiff",  wrap_get_a1_from_tiff, METH_VARARGS, "Creates a cairo A1 surface from a monochrome tiff file."},
 	{"write_a1_to_tiff",  wrap_write_a1_to_tiff, METH_VARARGS, "Appends a new page to an existing tiff file or create a new tiff file containing the pixel data from the surface."},
 	{"get_rgb24_from_tiff",  wrap_get_rgb24_from_tiff, METH_VARARGS, "Creates a cairo RGB24 surface from a (monochrome) tiff file."},
@@ -60,7 +58,7 @@ static PyMethodDef EvaluateMethods[] = {
 	{"get_masked_coverage",  wrap_get_masked_coverage, METH_VARARGS, "Calculates the black coverage in the given mask."},
 	{"get_masked_coverage_without_lines",  wrap_get_masked_coverage_without_lines, METH_VARARGS, "First removes the number of requested lines with the specified stroke width using a hough transformation. Then calculates the coverage. Works on the masked area."},
 	{"get_masked_white_area_count",  wrap_get_masked_white_area_count, METH_VARARGS, "Returns the number and overall size of white areas that are larger than the given percentage of the overall size. Works on the masked area."},
-	{"get_pbm",  wrap_get_pbm, METH_VARARGS, "Returns a string that contains a binary PBM data representation of the cairo A1 surface."},
+	{"get_pbm",  wrap_get_pbm, METH_VARARGS, "Returns a byte string that contains a binary PBM data representation of the cairo A1 surface."},
 	{"set_magic_values",  sdaps_set_magic_values, METH_VARARGS, "Sets some magic values for recognition."},
 	{"enable_debug_surface_creation",  enable_debug_surface_creation, METH_VARARGS, "Sets whether debug images should be created."},
 	{"get_debug_surface",  get_debug_surface, METH_VARARGS, "Returns the last created debug surface. Call immediately after a function that may create such a surface."},
@@ -68,27 +66,34 @@ static PyMethodDef EvaluateMethods[] = {
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
 
-static int
-initpycairo(void)
-{
-	Pycairo_IMPORT;
-	if (Pycairo_CAPI == NULL)
-		return 0;
-
-	return 1;
-}
+static struct PyModuleDef image_module = {
+  PyModuleDef_HEAD_INIT,
+  "image",
+  NULL,
+  0,
+  image_methods,
+  0,  /* m_reload */
+  0,  /* m_traverse */
+  0,  /* m_clear */
+  0,  /* m_free */
+};
 
 PyMODINIT_FUNC
-initimage(void)
+PyInit_image(void)
 {
-	/* Return if pycairo cannot be initilized. */
-	if (!initpycairo())
-		return;
+	PyObject *m;
 
-	Py_InitModule("image", EvaluateMethods);
+	m = PyModule_Create(&image_module);
+	if (m == NULL)
+		return NULL;
+
+	if (import_cairo() < 0)
+		return NULL;
 
 	/* supress warnings from libtiff. */
 	disable_libtiff_warnings ();
+
+	return m;
 }
 
 
@@ -407,7 +412,7 @@ wrap_get_pbm(PyObject *self, PyObject *args)
 
 	get_pbm(py_surface->surface, &data, &length);
 
-	result = Py_BuildValue("s#", data, length);
+	result = Py_BuildValue("y#", data, length);
 	g_free (data);
 	return result;
 }

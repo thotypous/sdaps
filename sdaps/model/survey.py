@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # SDAPS - Scripts for data acquisition with paper based surveys
 # Copyright(C) 2008, Christoph Simon <post@christoph-simon.eu>
-# Copyright(C) 2008, Benjamin Berg <benjamin@sipsolutions.net>
+# Copyright(C) 2008,2018, Benjamin Berg <benjamin@sipsolutions.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,12 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import bz2
-import cPickle
 import os
 import sys
-from sdaps import defs
+import struct
 
+import json
+import sqlite3
+import weakref
+from contextlib import closing
+ 
+from . import db
+from . import questionnaire
+from .sheet import Sheet
+from sdaps import defs
 from sdaps import log
 
 from sdaps.utils.ugettext import ugettext, ungettext
@@ -29,6 +36,26 @@ _ = ugettext
 
 valid_styles = ['classic', 'code128', 'custom', 'qr']
 valid_checkmodes = ['checkcorrect', 'check', 'fill']
+
+_db_schema = """
+CREATE TABLE surveys (
+    json TEXT
+);
+CREATE TRIGGER survey_delete AFTER DELETE ON surveys FOR EACH ROW
+  BEGIN
+    DELETE FROM sheets WHERE survey_rowid = OLD.rowid;
+  END;
+
+
+CREATE TABLE sheets (
+    survey_rowid REFERENCES surveys(rowid) NOT NULL,
+    sort INTEGER(8),
+
+    json TEXT
+);
+"""
+
+
 
 class Defs(object):
     """General definitions that are valid for this survey.
@@ -90,32 +117,45 @@ class Survey(object):
     :ivar questionnaire_ids: A List of used questionnaire IDs.
     """
 
-    pickled_attrs = set(('sheets', 'defs', 'survey_id', 'questionnaire_ids', 'questionnaire', 'version'))
+    _pickled_attrs = set(('defs', 'survey_id', 'questionnaire_ids', 'questionnaire', 'version'))
 
     def __init__(self):
         self.questionnaire = None
-        self.sheets = list()
-        self.title = unicode()
+
+        self._internal_init()
+
+        self.title = str()
         self.info = dict()
         self.survey_id = 0
         self.global_id = None
         self.questionnaire_ids = list()
         self.index = 0
-        self.version = 5
         self.defs = Defs()
+        self._db = None
+        # Hardcoded for now.
+        self._survey_rowid = 0
+
+    def _internal_init(self):
+        self._loaded_sheets = weakref.WeakValueDictionary()
+        self._dirty_sheets = []
+        self._current_sheet = None
 
     def add_questionnaire(self, questionnaire):
         self.questionnaire = questionnaire
         questionnaire.survey = self
 
     def add_sheet(self, sheet):
-        self.sheets.append(sheet)
+        """"
+        WARNING: It is impossible to iterate newly added sheets before the
+        survey has been saved!
+        """
         sheet.survey = self
-        # Select the newly added sheet
-        self.index = len(self.sheets) - 1
+        sheet._rowid = -1
+
+        self.goto_sheet(sheet)
 
     def calculate_survey_id(self):
-        u"""Calculate the unique survey ID from the surveys settings and boxes.
+        """Calculate the unique survey ID from the surveys settings and boxes.
 
         The ID only includes the boxes positions, which means that simple typo
         fixes will not change the ID most of the time."""
@@ -131,85 +171,151 @@ class Survey(object):
                 continue
 
             if isinstance(self.defs.__getattribute__(defs_slot), float):
-                md5.update(str(round(self.defs.__getattribute__(defs_slot), 1)))
+                md5.update(str(round(self.defs.__getattribute__(defs_slot), 1)).encode('utf-8'))
             else:
-                md5.update(str(self.defs.__getattribute__(defs_slot)))
+                md5.update(str(self.defs.__getattribute__(defs_slot)).encode('utf-8'))
 
-        self.survey_id = 0
-        # This compresses the md5 hash to a 32 bit unsigned value, by
-        # taking the lower two bits of each byte.
-        for i, c in enumerate(md5.digest()):
-            self.survey_id += bool(ord(c) & 1) << (2 * i)
-            self.survey_id += bool(ord(c) & 2) << (2 * i + 1)
+        # Use the first 32 bits as a little endian unsigned integer
+        self.survey_id = struct.unpack('<I', md5.digest()[0:4])[0]
 
     @staticmethod
     def load(survey_dir):
-        import ConfigParser
-        file = bz2.BZ2File(os.path.join(survey_dir, 'survey'), 'r')
-        survey = cPickle.load(file)
-        file.close()
-        survey.survey_dir = survey_dir
+        import configparser
 
-        config = ConfigParser.SafeConfigParser()
+        # Assume rowid is 0
+        survey_rowid = 0
+
+        dbfile = os.path.join(survey_dir, 'survey.sqlite')
+        if not os.path.exists(dbfile):
+            raise AssertionError('DB file does not exist!')
+        _db = sqlite3.connect(dbfile)
+
+        with _db as con:
+            c = con.cursor()
+            c.execute('SELECT json FROM surveys WHERE rowid=?', (survey_rowid,))
+            _json, = c.fetchone()
+
+            survey = db.fromJson(json.loads(_json), sys.modules[__name__])
+            survey.survey_dir = survey_dir
+            survey._survey_rowid = 0
+            survey._db = _db
+
+        ##########
+        # Load the info file
+        config = configparser.SafeConfigParser()
         config.optionxform = str
         config.read(os.path.join(survey_dir, 'info'))
-        survey.title = config.get('sdaps', 'title').decode('utf-8')
+        survey.title = config.get('sdaps', 'title')
 
-        survey.global_id = config.get('sdaps', 'global_id').decode('utf-8')
+        survey.global_id = config.get('sdaps', 'global_id')
         if survey.global_id == '' or survey.global_id == 'None':
             survey.global_id = None
 
         survey.info = dict()
         for key, value in config.items('info'):
-            survey.info[key.decode('utf-8')] = value.decode('utf-8')
-
-        # Early versions of SDAPS 1.0 did not have the file version number
-        if not hasattr(survey, 'version'):
-            survey.version = 1
-
-        # Before upgrading, reinit states, so events are "fired" correctly.
-        survey.questionnaire.reinit_state()
-        for sheet in survey.sheets:
-            sheet.reinit_state()
-
-        # Run any upgrade routine (if necessary)
-        survey.upgrade()
+            survey.info[key] = value
 
         return survey
+
+    def _db_get_sheet(self, rowid):
+        try:
+            return self._loaded_sheets[rowid]
+        except KeyError:
+            pass
+
+        c = self._db.cursor()
+        c.execute('SELECT json FROM sheets WHERE survey_rowid=? AND rowid=?', (self._survey_rowid, rowid))
+
+        data = json.loads(c.fetchone()[0])
+        sheet = db.fromJson(data, Sheet)
+        sheet._rowid = rowid
+        sheet.survey = self
+        sheet.reinit_state()
+
+        self._loaded_sheets[rowid] = sheet
+        return sheet
+
+    def _db_save_sheet(self, cursor, sheet):
+        if not sheet.dirty and sheet._rowid != -1:
+            return
+
+        tmp = json.dumps(sheet, default=db.toJson)
+        if sheet._rowid == -1:
+            cursor.execute('INSERT INTO sheets (survey_rowid, json) VALUES (?, ?)', (self._survey_rowid, tmp))
+            sheet._rowid = cursor.lastrowid
+            self._loaded_sheets[sheet._rowid] = sheet
+        else:
+            cursor.execute('UPDATE sheets SET json=? WHERE survey_rowid=? and rowid=?', (tmp, self._survey_rowid, sheet._rowid))
+
+        sheet._clear_dirty()
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        self._internal_init()
+        self.questionnaire = db.fromJson(self.questionnaire, questionnaire.Questionnaire)
+        self.questionnaire.survey = self
+        self.defs = db.fromJson(self.defs, Defs)
 
     @staticmethod
     def new(survey_dir):
         survey = Survey()
         survey.survey_dir = survey_dir
+        try:
+            os.makedirs(survey.path())
+        except FileExistsError:
+            pass
+
+        dbfile = survey.path('survey.sqlite')
+        if os.path.exists(dbfile):
+            raise AssertionError('DB file already exists!')
+        survey._db = sqlite3.connect(dbfile)
+        survey._db.executescript(_db_schema)
+
         return survey
 
     def save(self):
-        import ConfigParser
-        file = bz2.BZ2File(os.path.join(self.survey_dir, '.survey.tmp'), 'w')
-        cPickle.dump(self, file, 2)
-        file.close()
+        import configparser
+
+        # Update the DB syncing out all changes
+        with self._db as con:
+            c = con.cursor()
+            c.execute('INSERT OR REPLACE INTO surveys (rowid, json) VALUES (?, ?)', (self._survey_rowid, json.dumps(self, default=db.toJson)))
+
+            for sheet in self._dirty_sheets:
+                 self._db_save_sheet(c, sheet)
+            if self._current_sheet:
+                self._db_save_sheet(c, self._current_sheet)
+
+            self._dirty_sheets = []
+
+        # Sanity check that there is no sheet object alive that is dirty
+        for sheet in self._loaded_sheets.values():
+            assert sheet is None or (not sheet.dirty and sheet._rowid != -1)
+
+        ###############
+        # Write out the info file next
 
         # Hack to include comments. Set allow_no_value here, and add keys
         # with a '#' in the front and no value.
-        config = ConfigParser.SafeConfigParser(allow_no_value=True)
+        config = configparser.SafeConfigParser(allow_no_value=True)
 
         config.optionxform = str
         config.add_section('sdaps')
         config.add_section('info')
         config.add_section('defs')
         config.add_section('questionnaire')
-        config.set('sdaps', 'title', self.title.encode('utf-8'))
+        config.set('sdaps', 'title', self.title)
         if self.global_id is not None:
-            config.set('sdaps', 'global_id', self.global_id.encode('utf-8'))
+            config.set('sdaps', 'global_id', self.global_id)
         else:
             config.set('sdaps', 'global_id', '')
 
-        for key, value in sorted(self.info.iteritems()):
-            config.set('info', key.encode('utf-8'), value.encode('utf-8'))
+        for key, value in sorted(self.info.items()):
+            config.set('info', key, value)
 
         config.set('defs', '# These values are not read back, they exist for information only!')
         for attr in self.defs.__slots__:
-            config.set('defs', attr, str(getattr(self.defs, attr)).encode('utf-8'))
+            config.set('defs', attr, str(getattr(self.defs, attr)))
 
         config.set('questionnaire', '# These values are not read back, they exist for information only!')
         config.set('questionnaire', 'page_count', str(self.questionnaire.page_count))
@@ -217,23 +323,18 @@ class Survey(object):
         # it is not stored there internally..
         config.set('questionnaire', 'survey_id', str(self.survey_id))
 
+        # Atomically write info file
         info_fd = open(os.path.join(self.survey_dir, '.info.tmp'), 'w')
         config.write(info_fd)
 
-        # Does that work with the fsync on a different FD?
-        os.fsync(open(os.path.join(self.survey_dir, '.survey.tmp'), 'a'))
         os.fsync(info_fd)
         info_fd.close()
 
-        # Now move the new files over, saving the old ones, ignore error to move old files away
-        # as the may not exist.
         try:
-            os.rename(os.path.join(self.survey_dir, 'survey'), os.path.join(self.survey_dir, 'survey~'))
             os.rename(os.path.join(self.survey_dir, 'info'), os.path.join(self.survey_dir, 'info~'))
         except OSError:
             pass
 
-        os.rename(os.path.join(self.survey_dir, '.survey.tmp'), os.path.join(self.survey_dir, 'survey'))
         os.rename(os.path.join(self.survey_dir, '.info.tmp'), os.path.join(self.survey_dir, 'info'))
 
 
@@ -248,7 +349,7 @@ class Survey(object):
         return os.path.join(self.survey_dir, path % i)
 
     def get_sheet(self):
-        return self.sheets[self.index]
+        return self._current_sheet
 
     #: The currently selected sheet. Usually it will be changed by :py:meth:`iterate` or similar.
     sheet = property(get_sheet)
@@ -256,41 +357,69 @@ class Survey(object):
     def iterate(self, function, filter=lambda: True, *args, **kwargs):
         '''call function once for each sheet
         '''
-        for self.index in range(len(self.sheets)):
-            if filter():
-                function(*args, **kwargs)
+        with self._db as con:
+            c = con.cursor()
+            c.execute('SELECT rowid FROM sheets WHERE survey_rowid=? ORDER BY sort,rowid', (self._survey_rowid,))
+            for sheetid, in c.fetchall():
+                self.goto_sheet(self._db_get_sheet(sheetid))
+                if filter():
+                    function(*args, **kwargs)
 
-    def iterate_progressbar(self, function, filter=lambda: True):
+    @property
+    def sheet_count(self):
+        with self._db as con:
+            c = con.cursor()
+            c.execute('SELECT count(*) FROM sheets WHERE survey_rowid=?', (self._survey_rowid,))
+            count = c.fetchone()[0]
+            return count
+
+    def iterate_progressbar(self, function, filter=lambda: True, *args, **kwargs):
         '''call function once for each sheet and display a progressbar
         '''
-        count = 0
-        for self.index in range(len(self.sheets)):
-            if filter():
-                count += 1
+        with self._db as con:
+            c = con.cursor()
+            c.execute('SELECT count(*) FROM sheets WHERE survey_rowid=?', (self._survey_rowid,))
+            count = c.fetchone()[0]
 
-        print ungettext('%i sheet', '%i sheets', count) % count
-        if count == 0:
-            return
+            # The old code used to first filter, and then run; but that is
+            # a bit ineffective in a way
+            print(ungettext('%i sheet', '%i sheets', count) % count)
+            if count == 0:
+                return
 
-        log.progressbar.start(len(self.sheets))
+            log.progressbar.start(count)
 
-        for self.index in range(len(self.sheets)):
-            if filter():
-                function()
-            log.progressbar.update(self.index + 1)
+            processed = 0
+            c.execute('SELECT rowid FROM sheets WHERE survey_rowid=? ORDER BY sort,rowid', (self._survey_rowid,))
+            for index, (sheetid,) in enumerate(c.fetchall()):
+                self.goto_sheet(self._db_get_sheet(sheetid))
+                if filter():
+                    function(*args, **kwargs)
+                    processed += 1
 
-        print _('%f seconds per sheet') % (
-            float(log.progressbar.elapsed_time) /
-            float(log.progressbar.max_value)
-        )
+                log.progressbar.update(index + 1)
+
+        print(_('Processed %i of %i sheets, took %f seconds') % (processed, count, log.progressbar.elapsed_time))
 
     def goto_sheet(self, sheet):
-        u'''goto the specified sheet object
+        '''goto the specified sheet object
         '''
-        self.index = self.sheets.index(sheet)
+        if self._current_sheet is not None and (self._current_sheet._rowid == -1 or self._current_sheet.dirty):
+            if self._current_sheet not in self._dirty_sheets:
+                self._dirty_sheets.append(self._current_sheet)
+
+        self._current_sheet = sheet
+
+    def goto_nth_sheet(self, index):
+        with self._db as con:
+            c = con.cursor()
+            c.execute('SELECT rowid FROM sheets WHERE survey_rowid=? ORDER BY sort,rowid LIMIT 1 OFFSET ?', (self._survey_rowid, index))
+            rowid = c.fetchone()[0]
+
+        self.goto_sheet(self._db_get_sheet(rowid))
 
     def goto_questionnaire_id(self, questionnaire_id):
-        u'''goto the sheet object specified by its questionnaire_id
+        '''goto the sheet object specified by its questionnaire_id
         '''
 
         qids = set()
@@ -301,24 +430,27 @@ class Survey(object):
         except ValueError:
             pass
 
-        sheets = filter(
-            lambda sheet: sheet.questionnaire_id in qids,
-            self.sheets
-        )
+        sheets = []
+        def found():
+            if self.sheet.questionnaire_id in qids:
+                sheets.append(self.sheet)
+
+        self.iterate(found)
+
         if len(sheets) == 1:
             self.goto_sheet(sheets[0])
         else:
             raise ValueError
 
     def check_settings(self):
-        u'''Do sanity checks on the different settings.'''
+        '''Do sanity checks on the different settings.'''
 
         if self.defs.duplex and self.questionnaire.page_count % 2 != 0:
-            print _("A questionnaire that is printed in duplex needs an even amount of pages!")
+            print(_("A questionnaire that is printed in duplex needs an even amount of pages!"))
             return False
 
         if self.defs.style == 'classic' and self.questionnaire.page_count > 6:
-            print _("The 'classic' style only supports a maximum of six pages! Use the 'code128' style if you require more pages.")
+            print(_("The 'classic' style only supports a maximum of six pages! Use the 'code128' style if you require more pages."))
             return False
 
         return True
@@ -335,7 +467,7 @@ class Survey(object):
                 sys.exit(1)
         elif self.defs.style == "code128":
             # Check each character for validity
-            for c in unicode(qid):
+            for c in str(qid):
                 if not c in defs.c128_chars:
                     log.error(_("Invalid character %s in questionnaire ID \"%s\" in \"code128\" style!") % (c, qid))
                     sys.exit(1)
@@ -348,86 +480,4 @@ class Survey(object):
         else:
             AssertionError()
 
-    def __getstate__(self):
-        u'''Only pickle attributes that are in the pickled_attrs set.
-        '''
-        dict = self.__dict__.copy()
-        keys = dict.keys()
-        for key in keys:
-            if not key in self.pickled_attrs:
-                del dict[key]
-        return dict
-
-    def upgrade(self):
-        """Ensure that all data structures conform to this version of SDAPS."""
-
-        msg = _('Running upgrade routines for file format version %i')
-        if self.version < 2:
-            log.warn(msg % (1))
-            # Changes between version 1 and 2:
-            #  * Simplex surveys get a dummy page added for every image. This
-            #    way they can be handled in the same way as "duplex" mode
-            #    (and duplex scan can be supported).
-            #  * The data for "Textbox" has a string. This will be used in the
-            #    report if it contains data.
-
-            # Insert dummy images.
-            if not self.defs.duplex:
-                from sdaps.model.sheet import Image
-
-                for sheet in self.sheets:
-                    images = sheet.images
-
-                    # And re-add
-                    sheet.images = list()
-                    for img in images:
-                        sheet.add_image(img)
-                        img.ignored = False
-
-                        dummy = Image()
-                        dummy.filename = "DUMMY"
-                        dummy.tiff_page = -1
-                        dummy.ignored = True
-
-                        sheet.add_image(dummy)
-
-            # Add the "text" attribute to Textbox.
-            from sdaps.model.data import Textbox
-            for sheet in self.sheets:
-                for data in sheet.data.itervalues():
-                    if isinstance(data, Textbox):
-                        data.text = unicode()
-
-        if self.version < 3:
-            log.warn(msg % (3))
-            for sheet in self.sheets:
-                sheet.recognized = False
-                sheet.verified = False
-
-        if self.version < 4:
-            log.warn(msg % (4))
-            self.defs.checkmode = "checkcorrect"
-
-        if self.version < 5:
-            log.warn(msg % (5))
-
-            from sdaps.model import questionnaire
-
-            for qobject in self.questionnaire.qobjects:
-                if isinstance(qobject, questionnaire.Question):
-                    self.variable = None
-
-                    for i, box in enumerate(qobject.boxes):
-                        box.key = None
-                        box.value = None
-                        box.lw = 25.4 / 72
-
-                if isinstance(qobject, questionnaire.Range):
-                    qobject.range = (0, len(qobject.boxes)-1)
-
-                    for i, box in enumerate(qobject.boxes):
-                        box.value = i + 1
-                        box.lw = 25.4 / 72
-
-        self.version = 5
 

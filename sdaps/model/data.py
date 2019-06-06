@@ -44,17 +44,8 @@ class Box(object):
             return
 
         if value != old_value and hasattr(self, '_parent') and self._parent is not None:
+            self._dirty = True
             self._parent.question.questionnaire.notify_data_changed(self._parent, self, name, old_value)
-
-    def __getstate__(self):
-        u'''Only pickle non-private attributes
-        '''
-        dict = self.__dict__.copy()
-        keys = dict.keys()
-        for key in keys:
-            if key.startswith('_'):
-                del dict[key]
-        return dict
 
     @property
     def empty(self):
@@ -68,7 +59,7 @@ class Checkbox(Box):
 class Textbox(Box):
 
     def __init__(self, parent):
-        self.text = unicode()
+        self.text = str()
 
         Box.__init__(self, parent)
 

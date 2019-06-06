@@ -2,13 +2,8 @@
 
 This Program can be used to carry out paper based surveys.
 
-The questionnaire is designed using either OpenOffice/LibreOffice and then
-exported to PDF. SDAPS then uses both the ODT document and the PDF file
-to figure out what questions are asked, and where checkboxes and freeform
-fields are placed.
-Another great way to use SDAPS is together with its LaTeX class. It allows
-you to create questionnaires very easily and is tightly integrated into the
-SDAPS main program.
+SDAPS uses a specialised LaTeX class to define questionnaires. This is tightly
+integrated and is an easy way to create machine readable questionnaires.
 
 After this, the program can create an arbitrary number of (unique)
 questionnaires that can be printed and handed out. After being filled out, you
@@ -22,26 +17,21 @@ Depending on what part of SDAPS you use, different dependencies are
 required.
 
 general (including recognize):
- * Python 2.7
+ * Python 3.6
  * distutils and distutils-extra
- * python-cairo (including development files)
+ * python3-cairo (including development files)
  * libtiff (including development files)
  * pkg-config
- * python-zbar for "code128" and "qr" styles
- * python development files
+ * zbarimg binary for "code128" and "qr" styles
+ * python3 development files
 
 graphical user interface (gui):
  * GTK+ and introspection data
- * python-gi
+ * python3-gi
 
 reportlab based reports (report):
  * reportlab
  * Python Imaging Library (PIL)
-
-ODT based questionnaires (setup/stamp):
- * reportlab (for barcode rendering)
- * pdftk or pyPdf (pdftk is much faster if you need questionnaire ids)
- * python-pdftools
 
 LaTeX based questionnaires (setup_tex/stamp):
  * pdflatex and packages:
@@ -56,19 +46,28 @@ LaTeX based reports:
  * siunitx
 
 Import of other image formats (convert, add --convert):
- * python-opencv
+ * python3-opencv
  * Poppler and introspection data
- * python-gi
+ * python3-gi
 
 Debug output (annotate):
  * Poppler and introspection data
- * python-gi
+ * python3-gi
 
 ## Installation
 
 You can install sdaps using "./setup.py install". The C extension will
 be compiled automatically, but of course you have to have all the
 dependencies installed for this to work.
+
+Please note that this git repository uses submodules to pull in the LaTeX
+code. This means you need to run
+ $ git submodule init
+and then run
+ $ git submodule update
+to checkout and update the repository after a pull.
+
+Alternatively, do the initial clone using "git clone --recursive".
 
 ## Standalone execution
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # SDAPS - Scripts for data acquisition with paper based surveys
 # Copyright (C) 2008, Christoph Simon <post@christoph-simon.eu>
 # Copyright (C) 2008-2013, Benjamin Berg <benjamin@sipsolutions.net>
@@ -21,17 +21,17 @@ from distutils.extension import Extension
 import glob
 import os
 import os.path
-import commands
+import subprocess
 import sys
 from distutils.command import build
 from DistUtilsExtra.command import *
-import ConfigParser
+import configparser
 
 def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries', '-D' : 'define_macros'}
-    (status, tokens) = commands.getstatusoutput("pkg-config --libs --cflags %s" % ' '.join(packages))
+    (status, tokens) = subprocess.getstatusoutput("pkg-config --libs --cflags %s" % ' '.join(packages))
     if status != 0:
-        print tokens
+        print(tokens)
         sys.exit(1)
 
     for token in tokens.split():
@@ -50,7 +50,6 @@ class sdaps_build_tex(build.build):
     description = "build and install the LaTeX packages and classes"
 
     # Hardcoded ...
-    tex_buildscript = 'tex/class/build.lua'
     tex_installdir = 'share/sdaps/tex'
     tex_resultdir = 'tex/class/build/local'
 
@@ -58,6 +57,10 @@ class sdaps_build_tex(build.build):
         # Build the LaTeX packages and classes, note that they cannot build
         # out of tree currently.
         maindir = os.path.abspath(os.curdir)
+        if not os.path.exists('tex/class/build.lua'):
+            print('error: LaTeX build script is not available')
+            print('Did you forget to checkout the git submodule? See README for more information.')
+            os._exit(1)
         os.chdir('tex/class')
         self.spawn(['./build.lua', 'unpack'])
         os.chdir(maindir)
@@ -94,7 +97,7 @@ class sdaps_build_i18n(build_i18n.build_i18n):
             index = key.rfind('[')
             return key[:index], key[index+1:-1]
 
-        parser = ConfigParser.ConfigParser()
+        parser = configparser.ConfigParser()
         parser.read(tex_translations)
 
         langs = {}
@@ -106,7 +109,7 @@ class sdaps_build_i18n(build_i18n.build_i18n):
                 continue
 
             assert lang not in langs
-            assert v not in langs.items()
+            assert v not in list(langs.items())
 
             langs[lang] = v
 
@@ -114,8 +117,8 @@ class sdaps_build_i18n(build_i18n.build_i18n):
         from sdaps.utils.latex import unicode_to_latex
 
         dictfiles = []
-        for lang, name in langs.iteritems():
-            print 'building LaTeX dictionary file for language %s (%s)' % (name, lang if lang else 'C')
+        for lang, name in langs.items():
+            print('building LaTeX dictionary file for language %s (%s)' % (name, lang if lang else 'C'))
             dictfiles.append(os.path.join(dest_dir, 'translator-sdaps-dictionary-%s.dict' % name))
             f = open(dictfiles[-1], 'w')
 
@@ -137,10 +140,9 @@ class sdaps_build_i18n(build_i18n.build_i18n):
 
                 try:
                     value = parser.get("translations", k)
-                except ConfigParser.NoOptionError:
+                except configparser.NoOptionError:
                     value = parser.get("translations", key)
 
-                value = value.decode('UTF-8')
                 value = unicode_to_latex(value)
 
                 f.write('\\providetranslation{%s}{%s}\n' % (key, value))
@@ -157,7 +159,7 @@ class sdaps_clean_i18n(clean_i18n.clean_i18n):
 
         directory = os.path.join('build', self.dict_dir)
         if os.path.isdir(directory):
-            print "removing all LaTeX dictionaries in '%s'" % directory
+            print("removing all LaTeX dictionaries in '%s'" % directory)
             for filename in os.listdir(directory):
                 if filename.startswith('translator-sdaps-dictionary-'):
                     os.unlink(os.path.join(directory, filename))
@@ -172,7 +174,7 @@ class sdaps_build(build_extra.build_extra):
     sub_commands = build_extra.build_extra.sub_commands + [('build_tex', lambda x : True)]
 
 setup(name='sdaps',
-      version='1.9.1',
+      version='1.9.2',
       description='Scripts for data acquisition with paper-based surveys',
       url='http://sdaps.sipsolutions.net',
       author='Benjamin Berg, Christoph Simon',
@@ -201,7 +203,6 @@ the tools to later analyse the scanned data, and create a report.
                 'sdaps.reporttex',
                 'sdaps.reset',
                 'sdaps.setup',
-                'sdaps.setupodt',
                 'sdaps.setuptex',
                 'sdaps.utils'
       ],
@@ -211,7 +212,7 @@ the tools to later analyse the scanned data, and create a report.
                ],
       ext_modules=[Extension('sdaps.image.image',
                    ['sdaps/image/wrap_image.c', 'sdaps/image/image.c', 'sdaps/image/transform.c', 'sdaps/image/surface.c'],
-                   **pkgconfig('pycairo', 'cairo' ,'glib-2.0', libraries=['tiff']))],
+                   **pkgconfig('py3cairo', 'cairo', 'glib-2.0', libraries=['tiff']))],
       data_files=[
                   ('share/sdaps/ui',
                    glob.glob("sdaps/gui/*.ui")
