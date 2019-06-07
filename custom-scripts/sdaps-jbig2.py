@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf8 -*-
 # SDAPS - Scripts for data acquisition with paper based surveys
 # Copyright (C) 2008, Christoph Simon <post@christoph-simon.eu>
@@ -21,7 +21,7 @@ import sys
 import os
 import subprocess
 import shutil
-from backports import tempfile
+import tempfile
 DEVNULL = open(os.devnull, 'w')
 
 # Use the following and local_run=True below to run without installing SDAPS
@@ -45,7 +45,7 @@ def generate_pdf():
     global survey
 
     questionnaire = survey.questionnaire
-    sheet = survey.sheet
+    sheet = survey.get_sheet()
 
     # Use the questionnaire ID, if not there, give up?
     if sheet.questionnaire_id is not None:
@@ -57,7 +57,7 @@ def generate_pdf():
     with tempfile.TemporaryDirectory() as tmp_dir:
         page_files = []
 
-        for p in xrange(questionnaire.page_count):
+        for p in range(questionnaire.page_count):
             # 1 based page numbers
             p += 1
 

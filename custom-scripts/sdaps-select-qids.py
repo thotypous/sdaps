@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf8 -*-
 # SDAPS - Scripts for data acquisition with paper based surveys
 # Copyright (C) 2008, Christoph Simon <post@christoph-simon.eu>
@@ -39,10 +39,13 @@ qids_filename = sys.argv[2]
 with open(qids_filename) as f:
     qids_to_preserve = set(int(line.strip()) for line in f)
 
-for sheet in survey.sheets[:]:
+def keep_or_delete():
+    sheet = survey.get_sheet()
     qid = int(sheet.questionnaire_id)
     if not qid in qids_to_preserve:
         print('Removing %r' % qid)
-        survey.sheets.remove(sheet)
+        survey.delete_sheet(sheet)
 
+survey.iterate(keep_or_delete)
+survey.questionnaire_ids = [qid for qid in survey.questionnaire_ids if int(qid) in qids_to_preserve]
 survey.save()
