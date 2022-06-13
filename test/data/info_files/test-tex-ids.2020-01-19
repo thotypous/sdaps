@@ -15,10 +15,14 @@ print_survey_id = True
 style = code128
 duplex = True
 checkmode = checkcorrect
+corner_mark_left = 10.0
+corner_mark_right = 10.0
+corner_mark_top = 12.0
+corner_mark_bottom = 12.0
 engine = pdflatex
 
 [questionnaire]
 # These values are not read back, they exist for information only!
 page_count = 2
-survey_id = 135755071
+survey_id = 3042674314
 

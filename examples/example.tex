@@ -21,14 +21,18 @@
   % checkboxes. valid modes are "checkcorrect" (default), "check" and
   % "fill".
   %checkmode=checkcorrect,
-  %
-  % The following options make sense so that we can get a better feel for the
-  % final look.
-  pagemark,
-  stamp]{sdapsclassic}
+  ]{sdapsclassic}
 \usepackage[utf8]{inputenc}
 % For demonstration purposes
 \usepackage{multicol}
+\usepackage{graphicx}
+\graphicspath{{coins/}}
+
+% Load and enable PDF form support; note that \begin{Form}/\end{Form} is needed
+\usepackage{sdapspdf}
+\ExplSyntaxOn
+\sdaps_context_append:nn{*}{pdf_form=true}
+\ExplSyntaxOff
 
 \author{The Author}
 \title{The Title}
@@ -39,6 +43,7 @@
   % If you don't like the default text at the beginning of each questionnaire
   % you can remove it with the optional [noinfo] parameter for the environment 
   \begin{questionnaire}
+  \begin{Form}
     % There is a predefined "info" style to hilight some text.
     \begin{info}
       You can create a customized information element similar to the standard
@@ -112,17 +117,13 @@
     % Force a new page here
     \newpage
     \section{Tricks and Features}
-    SDAPS can also use circular checkboxes if you prefere. Or you can use the
-    {\ttfamily multicol} package to create multi-column layouts as is done below.
-
-    % Set checkbox style to be circular
-    \def\checkboxstyle{ellipse}
+    You can use the {\ttfamily multicol} package to create multi-column layouts
+    as is done below.
 
     \begin{multicols}{2}
-      \singlemark{This is a range question}{lower bound}{upper bound}%
-      % Note that we need the % at the end of the last line to prevent
-      % LaTeX from inserting too much whitespace.
-      \label{somelabel}
+      % We should use text= here to not get the label, but the class does not
+      % yet support this.
+      \singlemark{This is a range question\label{somelabel}}{lower bound}{upper bound}
 
       As you can see, this is a multi-column layout. The {\ttfamily markgroup} and
       {\ttfamily choicegroup} environments may be a bit tight in this mode.
@@ -155,9 +156,53 @@
 
     \textbox*{2cm}{And textboxes with a fixed height. This one is exactly 2\,cm high.}
 
-    % Reset checkbox style again.
-    \def\checkboxstyle{box}
+    \section{Images}
 
+    If you intend to include images, it is a good idea to place them (and all other
+    files you need) into a subdirectory. You can then use \texttt{sdaps setup --add DIR}
+    to make sure the files are copied into the project.
+
+    \begin{choicequestion}[cols=5]{Which of the following coins are from Indonesia?}
+      \choiceitem[text=200 Indonesian Rupia]{
+        \raisebox{-1.5em}{
+          \includegraphics[height=4em,keepaspectratio]{coins/200_rupiah_coin_obverse.jpg}
+        }
+      }
+      \choiceitem[text={Bactriane, Eucratide I, Back}]{
+        \raisebox{-1.5em}{
+          \includegraphics[height=4em,keepaspectratio]{coins/Eucratide_1er_-_20_stateres.jpg}
+        }
+      }
+      \choiceitem[text=1000 Indonesian Rupia]{
+        \raisebox{-1.5em}{
+          \includegraphics[height=4em,keepaspectratio]{coins/1000_rupiah_coin_reverse.jpg}
+        }
+      }
+      \choiceitem[text={Aureus, Auguste, Lyon}]{
+        \raisebox{-1.5em}{
+          \includegraphics[height=4em,keepaspectratio,trim={0 0 200 0},clip]{coins/Aureus,_Auguste,_Lyon,_btv1b104440369.jpg}
+        }
+      }
+      \choiceitem[text=Julius Caesar]{
+        \raisebox{-1.5em}{
+          \includegraphics[height=4em,keepaspectratio]{coins/RRC_452-2_Julius_Caesar_coin.jpg}
+        }
+      }
+    \end{choicequestion}
+
+    A nice way to make this more comfortable is to set an image search path.
+    This example uses the command \verb^\graphicspath{{coins/}}^, so that the
+    full path to the image is not needed each time. Note that you should not
+    include a leading \texttt{./}.
+
+     \begin{optiongroup}{}
+       \choice[text={Aureus Auguste Lyon}]{\includegraphics[height=4em,keepaspectratio,trim={200 0 0 0},clip]{Aureus,_Auguste,_Lyon,_btv1b104440369.jpg}}
+       \choice[text={Bactriane, Eucratide I}]{\includegraphics[height=4em,keepaspectratio]{Eucratide_1er_-_20_stateres.jpg}}
+       \choice[text=Julius Caesar]{\includegraphics[height=4em]{RRC_452-2_Julius_Caesar_coin.jpg}}
+       \question[text={Find the other side of Bactriane, Eucratide I, Face}]{Find the other side of \raisebox{-1.5em}{\includegraphics[height=4em,keepaspectratio]{Monnaie_de_Bactriane,_Eucratide_I,_face.jpg}}}
+     \end{optiongroup}
+
+  \end{Form}
   \end{questionnaire}
 \end{document}
 

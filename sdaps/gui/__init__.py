@@ -35,6 +35,7 @@ import signal
 
 from sdaps import model
 from sdaps import surface
+from sdaps import recognize
 from sdaps import clifilter
 from sdaps import defs
 from sdaps import paths
@@ -366,7 +367,8 @@ class MainWindow(object):
             if page_number != -1:
                 self.provider.image.page_number = page_number
                 self.provider.image.survey_id = self.provider.survey.survey_id
-            else:
+            elif self.provider.image.survey_id == self.provider.survey.survey_id:
+                # Keep the values as is if it belongs to another survey
                 self.provider.image.page_number = None
                 self.provider.image.survey_id = None
             self.update_ui()
@@ -393,6 +395,13 @@ class MainWindow(object):
             self._window.unfullscreen()
         else:
             self._window.fullscreen()
+        return True
+
+    def run_recognition(self, *args):
+        self.provider.survey.questionnaire.recognize.recognize(skip_identify=True,
+                                                               image=self.provider.image)
+        # We need to re-load the page as it gets cleared
+        self.provider.image.surface.load_rgb()
         return True
 
     def save_project(self, *args):
@@ -458,7 +467,7 @@ class MainWindow(object):
                 Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                 Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
             self.close_dialog.set_markup(
-                _("<b>Save the project before closing?</b>\n\nIf you do not save you may loose data."))
+                _("<b>Save the project before closing?</b>\n\nIf you do not save you may lose data."))
             self.close_dialog.set_default_response(Gtk.ResponseType.CANCEL)
 
         response = self.close_dialog.run()

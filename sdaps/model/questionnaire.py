@@ -66,10 +66,16 @@ class Questionnaire(buddy.Object):
 
     def add_qobject(self, qobject, new_id=None):
         qobject.questionnaire = self
-        # XXX: Is this any good?
+
         if new_id is not None:
-            assert new_id > self.last_id
-            self.last_id = new_id
+            # We allow IDs to move backward, but will continue auto-counting
+            # at the last increasing position.
+            if new_id > self.last_id:
+                self.last_id = new_id
+            else:
+                # If it moved backward, assert that there is no collision
+                for q in self.qobjects:
+                    assert q.id != new_id
             qobject.id = new_id
         else:
             self.last_id = qobject.init_id(self.last_id)
@@ -256,8 +262,8 @@ class Option(Question):
 
     def init_attributes(self):
         Question.init_attributes(self)
-        self.value_none = -1
-        self.value_invalid = -2
+        self.value_none = "NA"
+        self.value_invalid = "error-multi-select"
 
     def __str__(self):
         return str().join(
@@ -284,15 +290,15 @@ class Option(Question):
         # all others.
         # Raises an exception if not found
 
-        # Unset all if value is the none value
-        if answer == self.value_none:
+        # Unset all if value is the none value or None
+        if answer == self.value_none or answer is None:
             for box in self.boxes:
                 box.data.state = 0
             return
 
-        # Set all if value is the none value
+        # Set all if value is not an integer or the invalid value
         # NOTE: Assumes more than one box!
-        if answer == self.value_invalid:
+        if answer == self.value_invalid or not isinstance(answer, int):
             assert len(self.boxes) > 1
             for box in self.boxes:
                 box.data.state = 1

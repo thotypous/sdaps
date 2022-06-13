@@ -18,27 +18,7 @@
 #include "string.h"
 #include "surface.h"
 
-#define WORD_COUNT_BITS(x) (bitcount_table[(x) & 0xff] + bitcount_table[((x) >> 8) & 0xff] + bitcount_table[((x) >> 16) & 0xff] + bitcount_table[((x) >> 24) & 0xff])
-
-static guint8 bitcount_table[256];
-static gint bitcount_table_initialized = FALSE;
-
-static void
-ensure_bitcount_table(void)
-{
-	if (G_UNLIKELY(!bitcount_table_initialized)) {
-		int i;
-
-		for (i = 0; i < 256; i++) {
-			int j;
-			bitcount_table[i] = 0;
-			for (j = i; j; j = j >> 1) {
-				bitcount_table[i] += j & 0x1;
-			}
-		}
-		bitcount_table_initialized = TRUE;
-	}
-}
+#define WORD_COUNT_BITS(x) __builtin_popcount(x)
 
 cairo_surface_t*
 surface_copy_partial(cairo_surface_t *surface, int x, int y, int width, int height)
@@ -142,7 +122,7 @@ surface_inverted_copy_masked(cairo_surface_t *surface, cairo_surface_t *mask, gi
 void
 set_pixels_unchecked(guint32* pixels, guint32 stride, gint x, gint y, gint width, gint height, int value)
 {
-	guint x_pos, y_pos;
+	gint x_pos, y_pos;
 
 	for (y_pos = y; y_pos < y + height; y_pos++) {
 		for (x_pos = x; x_pos < x + width; x_pos++) {
@@ -152,7 +132,7 @@ set_pixels_unchecked(guint32* pixels, guint32 stride, gint x, gint y, gint width
 }
 
 void
-get_pbm(cairo_surface_t *surface, void **data, int *length)
+get_pbm(cairo_surface_t *surface, void **data, gssize *length)
 {
 	int width, height;
 	int s_stride;
@@ -193,7 +173,7 @@ count_black_pixel(cairo_surface_t *surface, gint x, gint y, gint width, gint hei
 {
 	guint32 *pixels;
 	guint stride;
-	guint img_width, img_height;
+	gint img_width, img_height;
 
 	pixels = (guint32*) cairo_image_surface_get_data(surface);
 	img_width = cairo_image_surface_get_width(surface);
@@ -223,10 +203,8 @@ count_black_pixel(cairo_surface_t *surface, gint x, gint y, gint width, gint hei
 gint
 count_black_pixel_unchecked(guint32* pixels, guint32 stride, gint x, gint y, gint width, gint height)
 {
-	guint y_pos;
+	gint y_pos;
 	guint black_pixel = 0;
-
-	ensure_bitcount_table();
 
 	for (y_pos = y; y_pos < y + height; y_pos++) {
 
@@ -237,14 +215,14 @@ count_black_pixel_unchecked(guint32* pixels, guint32 stride, gint x, gint y, gin
 		int pos;
 
 #if G_BYTE_ORDER == G_BIG_ENDIAN
-		start_mask = (1 << (x & 0x1f)) - 1;
-		end_mask = -(1 << ((x + width) & 0x1f));
+		start_mask = 0xffffffff >> (x & 0x1f);
+		end_mask = (0xffffffff << (-(x + width) & 0x1f));
 #else
-		start_mask = -(1 << (x & 0x1f));
-		end_mask = (1 << ((x + width) & 0x1f)) - 1;
+		start_mask = 0xffffffff << (x & 0x1f);
+		end_mask = (0xffffffff >> (-(x + width) & 0x1f));
 #endif
 		start = x >> 5;
-		end = (x + width) >> 5;
+		end = (x + width - 1) >> 5;
 
 		if (start == end) {
 			black_pixel += WORD_COUNT_BITS(pixels[start + y_pos * stride / 4] & start_mask & end_mask);
@@ -268,7 +246,7 @@ count_black_pixel_masked(cairo_surface_t *surface, cairo_surface_t *mask, gint x
 	guint stride;
 	guint mask_stride;
 	gint width, height;
-	guint img_width, img_height;
+	gint img_width, img_height;
 
 	width = cairo_image_surface_get_width(mask);
 	height = cairo_image_surface_get_height(mask);
@@ -302,10 +280,8 @@ count_black_pixel_masked(cairo_surface_t *surface, cairo_surface_t *mask, gint x
 gint
 count_black_pixel_masked_unchecked(guint32* pixels, guint32 stride, guint32 *mask_pixels, guint32 mask_stride, gint x, gint y, gint width, gint height)
 {
-	guint y_pos;
+	gint y_pos;
 	guint black_pixel = 0;
-
-	ensure_bitcount_table();
 
 	for (y_pos = 0; y_pos < height; y_pos++) {
 		guint32 end_mask;
@@ -314,11 +290,11 @@ count_black_pixel_masked_unchecked(guint32* pixels, guint32 stride, guint32 *mas
 		int pos;
 
 #if G_BYTE_ORDER == G_BIG_ENDIAN
-		end_mask = -(1 << (width & 0x1f));
+		end_mask = (0xffffffff << (-(x + width) & 0x1f));
 #else
-		end_mask = (1 << (width & 0x1f)) - 1;
+		end_mask = (0xffffffff >> (-(x + width) & 0x1f));
 #endif
-		end = width >> 5;
+		end = (width - 1) >> 5;
 
 		for (pos = 0; pos <= end; pos++) {
 			/* Note that a shift of 32 is not defined, it may also be 0. */

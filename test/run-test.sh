@@ -27,7 +27,7 @@ fi
 # Remove project dir that may exist
 rm -rf "$PROJECT"
 
-"$SDAPS" setup "$PROJECT" "data/tex/questionnaire_with_ids.tex"
+"$SDAPS" setup tex "$PROJECT" "data/tex/questionnaire_with_ids.tex"
 
 # Create a cover page in projects/test/cover.pdf
 "$SDAPS" cover "$PROJECT"
@@ -46,37 +46,18 @@ diff "data/tex/code128_test_ids" "$PROJECT/ids"
 "$SDAPS" recognize "$PROJECT"
 
 # Import some data
-"$SDAPS" csv import "$PROJECT" data/tex/ids_test_import.csv
+"$SDAPS" import csv "$PROJECT" data/tex/ids_test_import.csv
 # Export data again
-"$SDAPS" csv export "$PROJECT"
+"$SDAPS" export csv "$PROJECT"
 # And compare with expected result
 diff -qup data/tex/ids_test_export.csv "$PROJECT/data_1.csv"
 
 # Export all the other extra data
-"$SDAPS" csv export "$PROJECT" --images --question-images --quality
+"$SDAPS" export csv "$PROJECT" --images --question-images --quality
 
 # And finally, create a report with the fake result, both with tex and reportlab
-"$SDAPS" report "$PROJECT"
-"$SDAPS" report_tex "$PROJECT"
-
-###########################################################
-# Test Tex with IDs (classic mode)
-###########################################################
-
-PROJECT="projects/test-tex-classic"
-
-# Create projects dir if it does not exist
-if [ ! -e `dirname $PROJECT` ]; then
-	mkdir -p `dirname $PROJECT`
-fi
-
-# Remove project dir that may exist
-rm -rf "$PROJECT"
-
-"$SDAPS" setup "$PROJECT" "data/tex/questionnaire_classic.tex"
-
-# Create 10 unique sheets that can be printed and handed out
-"$SDAPS" stamp "$PROJECT" --random 10
+"$SDAPS" report reportlab "$PROJECT"
+"$SDAPS" report tex "$PROJECT"
 
 ###########################################################
 # Test Tex without IDs
@@ -92,7 +73,7 @@ fi
 # Remove project dir that may exist
 rm -rf "$PROJECT"
 
-"$SDAPS" setup "$PROJECT" "data/tex/questionnaire_without_ids.tex"
+"$SDAPS" setup tex "$PROJECT" "data/tex/questionnaire_without_ids.tex"
 
 # Create a cover page in projects/test/cover.pdf
 "$SDAPS" cover "$PROJECT"

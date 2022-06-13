@@ -30,6 +30,8 @@ BOX = 'Box'
 VARIABLE = 'Variable'
 TEXTBOX = 'Textbox'
 RANGE_PREFIX = 'Range'
+INFO_PREFIX = 'Info-'
+VERSION = 'SDAPSVersion'
 
 index_re = re.compile(r'''^(?P<index>(?:[0-9]+\.)+)(?P<string>.*)$''')
 arg_index_re = re.compile(r'''^(?P<arg>[^\[]*)(\[(?P<index>([0-9]+\.)*[0-9]+)\])?$''')
@@ -51,8 +53,10 @@ def get_index_and_string(string):
 
 def parse(survey):
 
-    sdaps_file = open(survey.path('questionnaire.sdaps'))
-    # the file is encoded in ascii format
+    # Usually the file will contain LaTeX macros for unicode characters, but
+    # UTF-8 may also come through directly. Not sure when, but this is safe.
+    # (see https://github.com/sdaps/sdaps/issues/208)
+    sdaps_file = open(survey.path('questionnaire.sdaps'), encoding='utf-8')
     sdaps_data = sdaps_file.read()
     qobject = None
     auto_numbering_id = (0,)
@@ -125,6 +129,17 @@ def parse(survey):
 
             survey.defs.paper_width = width
             survey.defs.paper_height = height
+
+        elif arg == "CornerMarkMargin":
+            args = value.split(',')
+            args = [arg.strip() for arg in args]
+
+            left, right, top, bottom = [round(float(arg[:-2]) / 72.27 * 25.4, 3) for arg in args]
+
+            survey.defs.corner_mark_left = left
+            survey.defs.corner_mark_right = right
+            survey.defs.corner_mark_top = top
+            survey.defs.corner_mark_bottom = bottom
 
         elif arg.startswith(QOBJECT_PREFIX):
             index, string = get_index_and_string(value)
@@ -217,6 +232,12 @@ def parse(survey):
 
             box.setup.setup(page, x, y, width, height, lw)
             qobject.setup.box(box)
+        elif arg == VERSION:
+            # Ignore for now.
+            pass
+        elif arg.startswith(INFO_PREFIX):
+            # Metadata, from 1.9.9 onwards
+            survey.info[arg[len(INFO_PREFIX):]] = value
         else:
             # Falltrough, it is some metadata:
             survey.info[arg] = value

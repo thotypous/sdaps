@@ -158,9 +158,10 @@ write_a1_to_tiff (const char *filename, cairo_surface_t *surf)
 	if (tiff == NULL)
 		return FALSE;
 
-	/* Reverse *ALL* bits ...
-	 * TODO: Is this correct for big endian??? */
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+	/* Reverse *ALL* bits ... */
 	TIFFReverseBits(data, stride*(height-1) + (width+7)/8);
+#endif
 
 	/* Setup the new image. */
 	TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, width);
@@ -183,16 +184,20 @@ write_a1_to_tiff (const char *filename, cairo_surface_t *surf)
 			goto BAIL_WRITE_A1;
 	}
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
 	/* Undo reversal again. */
 	TIFFReverseBits(data, stride*(height-1) + (width+7)/8);
+#endif
 	TIFFClose(tiff);
 
 	return TRUE;
 
 BAIL_WRITE_A1:
 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
 	/* Undo reversal again. */
 	TIFFReverseBits(data, stride*(height-1) + (width+7)/8);
+#endif
 	TIFFClose(tiff);
 
 	return FALSE;
@@ -276,7 +281,7 @@ get_tiff_resolution (const char *filename, gint page, gdouble *xresolution, gdou
 	TIFF* tiff;
 	float xres = 0.0;
 	float yres = 0.0;
-	uint16 unit = RESUNIT_NONE;
+	guint16 unit = RESUNIT_NONE;
 
 	tiff = TIFFOpen(filename, "r");
 	if (tiff == NULL)
@@ -318,7 +323,7 @@ check_tiff_monochrome (const char *filename)
 		return FALSE;
 
 	do {
-		uint16 bits_per_sample;
+		guint16 bits_per_sample;
 		TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &bits_per_sample);
 		if (bits_per_sample != 1)
 			monochrome = FALSE;
@@ -870,127 +875,6 @@ find_corner_marker(cairo_surface_t *surface,
 	return real_find_corner_marker(surface, start_x, start_y, dx, dy, search_distance, line_width, line_length, line_max_length, marker_x, marker_y);
 }
 
-/*****************************************************************************
- * calculate_matrix
- *
- * This function calculates the matrix based on the corner markers.
- * NB: The corner markers are lines with the end points on the positions
- *     passed into this function.
- *     This is different to boxes, where the coordinates are the bounding
- *     box of the checkbox!
- *
- *****************************************************************************/
-cairo_matrix_t*
-calculate_matrix(cairo_surface_t *surface,
-                 cairo_matrix_t *matrix,
-                 gdouble mm_x,
-                 gdouble mm_y,
-                 gdouble mm_width,
-                 gdouble mm_height)
-{
-	gint width, height;
-	gint line_width;
-	gint line_length;
-	gint line_max_length;
-	gdouble x_topleft, y_topleft;
-	gdouble x_topright, y_topright;
-	gdouble x_bottomleft, y_bottomleft;
-	gdouble x_bottomright, y_bottomright;
-	gdouble x_center, y_center;
-	gdouble dx, dy;
-	gdouble length_squared;
-	gint search_distance;
-	cairo_matrix_t *result;
-	gint found_corners = 4;
-	enum {
-		CORNER_NONE,
-		CORNER_TOP_LEFT,
-		CORNER_TOP_RIGHT,
-		CORNER_BOTTOM_LEFT,
-		CORNER_BOTTOM_RIGHT
-	} missing_corner = CORNER_NONE;
-
-	line_width = transform_distance_to_pixel(matrix, sdaps_line_width);
-	line_length = transform_distance_to_pixel(matrix, sdaps_line_min_length);
-	line_max_length = transform_distance_to_pixel(matrix, sdaps_line_max_length);
-	search_distance = transform_distance_to_pixel(matrix, sdaps_corner_mark_search_distance);
-
-	width = cairo_image_surface_get_width (surface);
-	height = cairo_image_surface_get_height (surface);
-
-	if (!real_find_corner_marker(surface, 0, 0, 1, 1, search_distance, line_width, line_length, line_max_length, &x_topleft, &y_topleft)) {
-		found_corners -= 1;
-		missing_corner = CORNER_TOP_LEFT;
-	}
-	if (!real_find_corner_marker(surface, width - 1, 0, -1, 1, search_distance, line_width, line_length, line_max_length, &x_topright, &y_topright)) {
-		found_corners -= 1;
-		missing_corner = CORNER_TOP_RIGHT;
-	}
-	if (!real_find_corner_marker(surface, 0, height - 1, 1, -1, search_distance, line_width, line_length, line_max_length, &x_bottomleft, &y_bottomleft)) {
-		found_corners -= 1;
-		missing_corner = CORNER_BOTTOM_LEFT;
-	}
-	if (!real_find_corner_marker(surface, width - 1, height - 1,-1, -1, search_distance, line_width, line_length, line_max_length, &x_bottomright, &y_bottomright)) {
-		found_corners -= 1;
-		missing_corner = CORNER_BOTTOM_RIGHT;
-	}
-
-	if (found_corners < 3)
-		return NULL;
-
-	/* Corners are known, now calculate the matrix. */
-
-	result = g_new(cairo_matrix_t, 1);
-
-	/* Simply calculate the missing corner, that seems easier to write down. */
-	if (missing_corner == CORNER_TOP_LEFT) {
-		x_topleft = x_bottomleft - x_bottomright + x_topright;
-		y_topleft = y_topright - y_bottomright + y_bottomleft;
-	}
-	if (missing_corner == CORNER_TOP_RIGHT) {
-		x_topright = x_bottomright - x_bottomleft + x_topleft;
-		y_topright = y_topleft - y_bottomleft + y_bottomright;
-	}
-	if (missing_corner == CORNER_BOTTOM_LEFT) {
-		x_bottomleft = x_topleft - x_topright + x_bottomright;
-		y_bottomleft = y_bottomright - y_topright + y_topleft;
-	}
-	if (missing_corner == CORNER_BOTTOM_RIGHT) {
-		x_bottomright = x_topright - x_topleft + x_bottomleft;
-		y_bottomright = y_bottomleft - y_topleft + y_topright;
-	}
-
-	/* X-Axis *********************/
-	dx = ((x_topright - x_topleft) + (x_bottomright - x_bottomleft)) / 2.0;
-	dy = ((y_topright - y_topleft) + (y_bottomright - y_bottomleft)) / 2.0;
-	length_squared = dx*dx + dy*dy;
-
-	result->xx = dx / length_squared * mm_width;
-	result->yx = -dy / length_squared * mm_width; /* negative for some reason, no idea why right now ... */
-
-	/* Y-Axis *********************/
-	dx = ((x_bottomright - x_topright) + (x_bottomleft - x_topleft)) / 2.0;
-	dy = ((y_bottomright - y_topright) + (y_bottomleft - y_topleft)) / 2.0;
-
-	length_squared = dx*dx + dy*dy;
-	result->xy = -dx / length_squared * mm_height; /* negative for some reason, no idea why right now ... */
-	result->yy = dy / length_squared * mm_height;
-
-	/* Center everything between the markers. */
-	x_center = (x_bottomleft + x_bottomright + x_topleft + x_topright) / 4.0;
-	y_center = (y_bottomleft + y_bottomright + y_topleft + y_topright) / 4.0;
-	/* top/left corner (based on the center) */
-	result->x0 = mm_width / 2.0 + mm_x;
-	result->y0 = mm_height / 2.0 + mm_y;
-
-	dx = x_center * result->xx + y_center * result->xy;
-	dy = x_center * result->yx + y_center * result->yy;
-	result->x0 -= dx;
-	result->y0 -= dy;
-
-	return result;
-}
-
 cairo_matrix_t*
 calculate_correction_matrix_masked(cairo_surface_t  *surface,
                                    cairo_surface_t  *mask,
@@ -1052,7 +936,7 @@ calculate_correction_matrix_masked(cairo_surface_t  *surface,
 	result->x0 = tmp_x - mm_x;
 	result->y0 = tmp_y - mm_y;
 
-	*covered = coverage / (float) count_black_pixel(mask, 0, 0, px_width, px_height);
+	*covered = coverage / (gdouble) count_black_pixel(mask, 0, 0, px_width, px_height);
 
 	return result;
 }
@@ -1138,7 +1022,7 @@ find_box_corners(cairo_surface_t  *surface,
 	return TRUE;
 }
 
-float
+gdouble
 get_coverage(cairo_surface_t *surface,
              cairo_matrix_t  *matrix,
              gdouble          mm_x,
@@ -1177,10 +1061,10 @@ get_coverage(cairo_surface_t *surface,
 		cairo_surface_flush(surf);
 	}
 
-	return black / (double) all;
+	return black / (gdouble) all;
 }
 
-float
+gdouble
 get_masked_coverage(cairo_surface_t *surface,
                     cairo_surface_t *mask,
                     gint             x,
@@ -1206,7 +1090,7 @@ get_masked_coverage(cairo_surface_t *surface,
 		cairo_surface_flush(surf);
 	}
 
-	return black / (double) all;
+	return black / (gdouble) all;
 }
 
 /* First removes the number of lines, and then calculates the coverage of what

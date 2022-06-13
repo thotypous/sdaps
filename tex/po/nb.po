@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-26 19:09+0100\n"
+"POT-Creation-Date: 2020-05-27 09:48+0200\n"
 "PO-Revision-Date: 2019-01-01 11:10+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/sdaps/"
@@ -22,7 +22,7 @@ msgstr ""
 #. The language name of the LaTeX dictionary file for translator
 #: ../tex_translations.in.h:2
 msgid "English"
-msgstr "Norwegian Bokmål"
+msgstr "Norsk"
 
 #. Used as an overlay for questionnaires that are not yet done
 #: ../tex_translations.in.h:4
@@ -49,27 +49,27 @@ msgstr ""
 "Dette spørreskjemaet blir automatisk lest av et dataprogram. Bruk ei penn "
 "for å fylle inn svarene dine."
 
-#. Instruction on the questionnaire: Next to checked textbox
+#. Instruction on the questionnaire: Next to checked textbox (keep short to avoid line breaks)
 #: ../tex_translations.in.h:12
 msgid "Selected"
 msgstr "Valgt"
 
-#. Instruction on the questionnaire: Next to filled checkbox
+#. Instruction on the questionnaire: Next to filled checkbox (keep short to avoid line breaks)
 #: ../tex_translations.in.h:14
 msgid "Fill to select"
 msgstr "Fyll for å velge"
 
-#. Instruction on the questionnaire: Next to filled and checked checkbox
+#. Instruction on the questionnaire: Next to filled and checked checkbox (keep short to avoid line breaks)
 #: ../tex_translations.in.h:16
 msgid "Undo select"
 msgstr "Angre utvalg"
 
-#. Instruction on the questionnaire: Multiple choice question
+#. Instruction on the questionnaire: Multiple choice question (keep short to avoid line breaks)
 #: ../tex_translations.in.h:18
 msgid "Multiple-choice (select all applicable options)"
 msgstr "Flervalg (velg alle passende alternativer)"
 
-#. Instruction on the questionnaire: Single choice question
+#. Instruction on the questionnaire: Single choice question (keep short to avoid line breaks)
 #: ../tex_translations.in.h:20
 msgid "Single-choice (select only one option)"
 msgstr "Enkeltvalg (velg kun ett alternativ)"

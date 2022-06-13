@@ -74,6 +74,11 @@ class SheetWidget(Gtk.DrawingArea, Gtk.Scrollable):
         self.queue_draw()
 
     def partial_update(self, questionnaire, qobj, obj, name, old_value):
+        if qobj is None and name == "raw_matrix":
+            self._update_matrices()
+            self.queue_draw()
+            return
+
         if not isinstance(obj, model.data.Box):
             return
 
@@ -141,7 +146,7 @@ class SheetWidget(Gtk.DrawingArea, Gtk.Scrollable):
 
         if event.button == 3:
             # Give the corresponding widget the focus.
-            box = self.provider.survey.questionnaire.gui.find_box(self.provider.image.page_number, mm_x, mm_y)
+            box = self.provider.survey.questionnaire.gui.find_box(self.provider.image, mm_x, mm_y)
             if hasattr(box, "widget"):
                 box.widget.focus()
 
@@ -152,15 +157,16 @@ class SheetWidget(Gtk.DrawingArea, Gtk.Scrollable):
 
         # Look for edges to drag first(on a 4x4px target)
         tollerance_x, tollerance_y = self._widget_to_mm_matrix.transform_distance(4.0, 4.0)
-        result = self.provider.survey.questionnaire.gui.find_edge(self.provider.image.page_number, mm_x, mm_y,
+        result = self.provider.survey.questionnaire.gui.find_edge(self.provider.image, mm_x, mm_y,
                                                                   tollerance_x, tollerance_y)
         if result:
+            self.queue_draw()
             self._edge_drag_active = True
             self._edge_drag_obj = result[0]
             self._edge_drag_data = result[1]
             return True
 
-        box = self.provider.survey.questionnaire.gui.find_box(self.provider.image.page_number, mm_x, mm_y)
+        box = self.provider.survey.questionnaire.gui.find_box(self.provider.image, mm_x, mm_y)
 
         if box is not None:
             box.data.state = not box.data.state
@@ -278,15 +284,8 @@ class SheetWidget(Gtk.DrawingArea, Gtk.Scrollable):
         # Set the matrix _after_ drawing the background pixbuf.
         cr.transform(self._mm_to_widget_matrix)
 
-        cr.set_source_rgba(1.0, 0.0, 0.0, 0.6)
-        cr.set_line_width(1.0 * 25.4 / 72.0)
-        cr.rectangle(defs.corner_mark_left, defs.corner_mark_top,
-                     self.provider.survey.defs.paper_width - defs.corner_mark_left - defs.corner_mark_right,
-                     self.provider.survey.defs.paper_height - defs.corner_mark_top - defs.corner_mark_bottom)
-        cr.stroke()
-
         # Draw the overlay stuff.
-        self.provider.survey.questionnaire.gui.draw(cr, self.provider.image.page_number)
+        self.provider.survey.questionnaire.gui.draw(cr, self.provider.image)
 
         def inner_box(cr, x, y, width, height):
             line_width = cr.get_line_width()
@@ -298,22 +297,22 @@ class SheetWidget(Gtk.DrawingArea, Gtk.Scrollable):
             half_pt = 0.5 / 72.0 * 25.4
             pt = 1.0 / 72.0 * 25.4
             inner_box(cr,
-                      defs.corner_mark_left + defs.corner_box_padding - half_pt,
-                      defs.corner_mark_top + defs.corner_box_padding - half_pt,
+                      self.provider.survey.defs.corner_mark_left + defs.corner_box_padding - half_pt,
+                      self.provider.survey.defs.corner_mark_top + defs.corner_box_padding - half_pt,
                       defs.corner_box_width + pt,
                       defs.corner_box_height + pt)
             inner_box(cr,
                       self.provider.survey.defs.paper_width
-                          - defs.corner_mark_right
+                          - self.provider.survey.defs.corner_mark_right
                           - defs.corner_box_padding
                           - defs.corner_box_width - half_pt,
-                      defs.corner_mark_top + defs.corner_box_padding - half_pt,
+                      self.provider.survey.defs.corner_mark_top + defs.corner_box_padding - half_pt,
                       defs.corner_box_width + pt,
                       defs.corner_box_height + pt)
             inner_box(cr,
-                      defs.corner_mark_left + defs.corner_box_padding - half_pt,
+                      self.provider.survey.defs.corner_mark_left + defs.corner_box_padding - half_pt,
                       self.provider.survey.defs.paper_height
-                          - defs.corner_mark_bottom
+                          - self.provider.survey.defs.corner_mark_bottom
                           - defs.corner_box_padding
                           - defs.corner_box_height
                           - half_pt,
@@ -321,12 +320,12 @@ class SheetWidget(Gtk.DrawingArea, Gtk.Scrollable):
                       defs.corner_box_height + pt)
             inner_box(cr,
                       self.provider.survey.defs.paper_width
-                          - defs.corner_mark_right
+                          - self.provider.survey.defs.corner_mark_right
                           - defs.corner_box_padding
                           - defs.corner_box_width
                           - half_pt,
                       self.provider.survey.defs.paper_height
-                          - defs.corner_mark_bottom
+                          - self.provider.survey.defs.corner_mark_bottom
                           - defs.corner_box_padding
                           - defs.corner_box_height
                           - half_pt,

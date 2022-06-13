@@ -37,18 +37,20 @@ _ = ugettext
 valid_styles = ['classic', 'code128', 'custom', 'qr']
 valid_checkmodes = ['checkcorrect', 'check', 'fill']
 
+# Note that row_id has the same value as the implicit rowid row.
 _db_schema = """
 CREATE TABLE surveys (
+    row_id INTEGER PRIMARY KEY AUTOINCREMENT,
     json TEXT
 );
 CREATE TRIGGER survey_delete AFTER DELETE ON surveys FOR EACH ROW
   BEGIN
-    DELETE FROM sheets WHERE survey_rowid = OLD.rowid;
+    DELETE FROM sheets WHERE survey_rowid = OLD.row_id;
   END;
 
 
 CREATE TABLE sheets (
-    survey_rowid REFERENCES surveys(rowid) NOT NULL,
+    survey_rowid REFERENCES surveys(row_id) NOT NULL,
     sort INTEGER(8),
 
     json TEXT
@@ -71,16 +73,29 @@ class Defs(object):
     # Force a certain set of options using slots
     __slots__ = ['paper_width', 'paper_height', 'print_questionnaire_id',
                  'print_survey_id', 'style', 'duplex', 'checkmode',
+                 'corner_mark_left', 'corner_mark_right', 'corner_mark_top', 'corner_mark_bottom',
                  'engine']
+
+    def __init__(self):
+        # Default values for corner mark positions (old project or initialization)
+        self.corner_mark_left = defs._corner_mark_left
+        self.corner_mark_right = defs._corner_mark_right
+        self.corner_mark_top = defs._corner_mark_top
+        self.corner_mark_bottom = defs._corner_mark_bottom
+
+    def __setstate__(self, data):
+        self.__init__()
+        for k, v in data.items():
+            setattr(self, k, v)
 
     def get_survey_id_pos(self):
         assert(self.style == 'classic')
 
-        y_pos = self.paper_height - defs.corner_mark_bottom - defs.corner_box_padding
+        y_pos = self.paper_height - self.corner_mark_bottom - defs.corner_box_padding
         y_pos -= defs.codebox_height
 
-        left_padding = defs.corner_mark_left + 2 * defs.corner_box_padding + defs.corner_box_width
-        right_padding = defs.corner_mark_right + 2 * defs.corner_box_padding + defs.corner_box_width
+        left_padding = self.corner_mark_left + 2 * defs.corner_box_padding + defs.corner_box_width
+        right_padding = self.corner_mark_right + 2 * defs.corner_box_padding + defs.corner_box_width
 
         text_y_pos = y_pos + defs.codebox_text_baseline_shift
         x_center = left_padding + (self.paper_width - left_padding - right_padding) / 2.0
@@ -183,6 +198,19 @@ class Survey(object):
                 continue
 
             if defs_slot == 'engine':
+                continue
+
+            # Introduced in 1.9.10
+            if defs_slot == 'corner_mark_left' and self.defs.corner_mark_left == defs._corner_mark_left:
+                continue
+
+            if defs_slot == 'corner_mark_right' and self.defs.corner_mark_right == defs._corner_mark_right:
+                continue
+
+            if defs_slot == 'corner_mark_top' and self.defs.corner_mark_top == defs._corner_mark_top:
+                continue
+
+            if defs_slot == 'corner_mark_bottom' and self.defs.corner_mark_bottom == defs._corner_mark_bottom:
                 continue
 
             if isinstance(self.defs.__getattribute__(defs_slot), float):
@@ -313,7 +341,7 @@ class Survey(object):
 
         # Sanity check that there is no sheet object alive that is dirty
         for sheet in self._loaded_sheets.values():
-            assert sheet is None or (not sheet.dirty and sheet._rowid != -1)
+            assert sheet is None or hasattr(sheet, '_delete') or (not sheet.dirty and sheet._rowid != -1)
 
         ###############
         # Write out the info file next

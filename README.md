@@ -10,6 +10,10 @@ questionnaires that can be printed and handed out. After being filled out, you
 just scan them in, let sdaps run over them, and let it create a report with
 the results.
 
+The main LaTeX class is also available on CTAN (https://ctan.org/pkg/sdaps) and
+may also be installed directly, e.g. using a LaTeX distribution like TeX Live.
+Please check whether you can install it that way, and if not choose the
+`--build-tex` or `--install-tex` for building/installing SDAPS.
 
 ## Requirements
 
@@ -50,15 +54,22 @@ Import of other image formats (convert, add --convert):
  * Poppler and introspection data
  * python3-gi
 
+Export to feather format:
+ * python3-pandas
+ * pyarrows
+
 Debug output (annotate):
  * Poppler and introspection data
  * python3-gi
 
 ## Installation
 
-You can install sdaps using "./setup.py install". The C extension will
-be compiled automatically, but of course you have to have all the
-dependencies installed for this to work.
+You can install sdaps using `./setup.py install` or
+`./setup.py install --install-tex`. The C extension will be compiled
+automatically, but of course you have to have all the dependencies installed
+for this to work. When `--install-tex` is passed, the LaTeX class files
+will also be installed. This is only necessary if your LaTeX distribution
+does not yet include the sdaps package.
 
 Please note that this git repository uses submodules to pull in the LaTeX
 code. This means you need to run
@@ -72,9 +83,14 @@ Alternatively, do the initial clone using "git clone --recursive".
 ## Standalone execution
 
 As an alternative to installing sdaps it is also supported to run it without
-installation. To do this run "./setup.py build" to build the binary modules
-and translation. After this execute sdaps using the provided "sdaps.py"
-script in the toplevel directory.
+installation. To do this run `./setup.py build` or
+`./setup.py build --build-tex` to build the binary modules, translation and
+possibly LaTeX class files. After this execute sdaps using the provided
+`sdaps.py` script in the toplevel directory.
+
+Adding `--build-tex` is only neccessary when testing the latest version of the
+LaTeX class or if the class is not already installed using other means (e.g.
+distribution LaTeX installation).
 
 ## Using SDAPS
 
