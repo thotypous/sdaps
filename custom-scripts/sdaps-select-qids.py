@@ -41,7 +41,9 @@ with open(qids_filename) as f:
 
 def keep_or_delete():
     sheet = survey.get_sheet()
-    qid = int(sheet.questionnaire_id)
+    qid = sheet.questionnaire_id
+    if qid is not None:
+        qid = int(qid)
     if not qid in qids_to_preserve:
         print('Removing %r' % qid)
         survey.delete_sheet(sheet)
