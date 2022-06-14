@@ -26,13 +26,11 @@ import os
 import tempfile
 import cairo
 import subprocess
-from zxinglight import read_codes, BarcodeType
+import zxingcpp
 from PIL import Image
 from sdaps import image
 from sdaps import defs
 import logging
-
-logging.getLogger('zxinglight').setLevel(logging.CRITICAL)
 
 def read_barcode(surface, matrix, x, y, width, height, btype="CODE128"):
     """Tries to read the barcode at the given position"""
@@ -98,17 +96,17 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
     # Try zxing
 
     if btype == "CODE128":
-        barcode_type = BarcodeType.CODE_128
+        barcode_type = zxingcpp.BarcodeFormat.Code128
     elif btype == "QRCODE":
-        barcode_type = BarcodeType.QR_CODE
+        barcode_type = zxingcpp.BarcodeFormat.QRCode
     else:
         barcode_type = None
     img = Image.frombuffer("L", (width, height), bytes(a8_surface.get_data()), "raw" ,"L", 0, 1)
     for nw in range(width, 256, -64):
-        codes = read_codes(img.resize((nw, nw*height//width), Image.BICUBIC),
-            barcode_type=barcode_type, try_harder=True, search_multi=False)
-        if len(codes) > 0:
-            return codes[0]
+        res = zxingcpp.read_barcode(img.resize((nw, nw*height//width), Image.BICUBIC),
+            formats=barcode_type, try_rotate=True, try_downscale=True)
+        if res.valid:
+            return res.text
 
     # Try zbar
 
