@@ -105,7 +105,7 @@ def scan(surface, matrix, x, y, width, height, btype="CODE128", kfill=False):
     for nw in range(width, 256, -64):
         res = zxingcpp.read_barcode(img.resize((nw, nw*height//width), Image.BICUBIC),
             formats=barcode_type, try_rotate=True, try_downscale=True)
-        if res.valid:
+        if res and res.valid:
             return res.text
 
     # Try zbar
