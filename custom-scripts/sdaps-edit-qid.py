@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf8 -*-
 # SDAPS - Scripts for data acquisition with paper based surveys
 # Copyright (C) 2008, Christoph Simon <post@christoph-simon.eu>
@@ -30,7 +30,6 @@ sdaps.init(local_run=True)
 
 from sdaps import model
 from sdaps import image
-from sdaps import matrix
 
 
 survey = model.survey.Survey.load(sys.argv[1])
@@ -39,7 +38,7 @@ survey = model.survey.Survey.load(sys.argv[1])
 page_data = {}
 dirty_qids = set()
 
-for i in xrange(2, len(sys.argv), 3):
+for i in range(2, len(sys.argv), 3):
     tiff_page, qid, page_number = sys.argv[i:i+3]
     #tiff_page starts counting at 1
     #page_number starts counting at 1
@@ -57,7 +56,9 @@ if not survey.defs.duplex:
     image_count = image_count * 2
 images = defaultdict(lambda : [])
 
-for sheet in survey.sheets[:]:
+sheets = []
+survey.iterate(lambda: sheets.append(survey.get_sheet()))
+for sheet in sheets:
     for image in sheet.images[:]:
         #print(image.questionnaire_id, image.page_number)
         if image.questionnaire_id is None and image.tiff_page != -1:
@@ -73,12 +74,14 @@ for sheet in survey.sheets[:]:
             images[image.questionnaire_id].append(image)
 
     if sheet.questionnaire_id is None or sheet.questionnaire_id in dirty_qids:
-        survey.sheets.remove(sheet)
+        survey.delete_sheet(sheet)
         for image in sheet.images:
             images[image.questionnaire_id].append(image)
 
+if len(page_data) != 0:
+    survey.save()
 
-for qid, img_list in images.iteritems():
+for qid, img_list in images.items():
     if qid is not None:
         sheet = model.sheet.Sheet()
         sheet.questionnaire_id = qid
